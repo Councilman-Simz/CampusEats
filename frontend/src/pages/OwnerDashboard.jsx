@@ -173,6 +173,8 @@ function OwnerDashboard() {
       return;
     }
 
+    setRestaurantError("");
+
     setRestaurantForm({
       name: restaurant.name || "",
       location: restaurant.location || "",
