@@ -1,0 +1,38 @@
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+frontend/.env.*
+
+# macOS
+.DS_Store
+
+# Logs
+*.log
+
+# IDE
+.vscode/
+.idea/
+
+# Backups
+*.backup
+.git-corrupt-backup/
+.git-corrupt-backup/
+
+.git-corrupt-backup/
+frontend/node_modules/
+frontend/dist/
+backend/.env
+.DS_Store

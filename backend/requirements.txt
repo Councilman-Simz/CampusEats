@@ -1,0 +1,30 @@
+# Web Framework
+fastapi==0.116.1
+uvicorn[standard]==0.35.0
+python-multipart==0.0.20
+
+# Database
+sqlalchemy==2.0.41
+psycopg2-binary==2.9.10
+alembic==1.16.4
+
+# Data Validation
+pydantic==2.11.7
+pydantic-settings==2.10.1
+email-validator==2.2.0
+
+# Authentication & Security
+passlib[bcrypt]==1.7.4
+python-jose[cryptography]==3.5.0
+bcrypt==4.0.1
+
+# Development Tools
+pytest==8.4.1
+pytest-asyncio==1.1.0
+
+# AI & Semantic Search
+faker==37.5.3
+sentence-transformers==5.0.0
+pgvector==0.4.1
+openai==1.97.1
+numpy==2.3.1
