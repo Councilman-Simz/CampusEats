@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
-const WS_BASE_URL = "ws://localhost:8000";
+const WS_BASE_URL = import.meta.env.VITE_WS_URL;
 
 function formatNotificationTime(value) {
   if (!value) {
