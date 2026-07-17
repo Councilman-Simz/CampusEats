@@ -1,6 +1,9 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
+from dotenv import load_dotenv
 import os
+
+load_dotenv()
 
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
@@ -13,14 +16,6 @@ Base = declarative_base()
 
 
 def get_db():
-    """
-    Dependency for FastAPI routes to get database session.
-    
-    Usage:
-        @app.get("/items")
-        def get_items(db: Session = Depends(get_db)):
-            ...
-    """
     db = SessionLocal()
     try:
         yield db
