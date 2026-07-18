@@ -48,7 +48,7 @@ def register(
             user.dietary_preferences
         ),
         campus=user.campus,
-        role="student",
+        role=user.role,
     )
 
     db.add(new_user)
