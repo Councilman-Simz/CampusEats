@@ -8583,3 +8583,68 @@ button {
     grid-template-columns: 1fr;
   }
 }
+
+.owner-revenue-chart-panel {
+  margin-bottom: 24px;
+}
+
+.owner-revenue-chart {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(56px, 1fr));
+  gap: 16px;
+  align-items: end;
+  min-height: 280px;
+  padding-top: 20px;
+}
+
+.owner-revenue-bar-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.owner-revenue-bar-column > span {
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.owner-revenue-bar-track {
+  width: 100%;
+  max-width: 64px;
+  height: 190px;
+  display: flex;
+  align-items: flex-end;
+  border-radius: 16px;
+  overflow: hidden;
+  background: rgba(148, 163, 184, 0.18);
+}
+
+.owner-revenue-bar-track b {
+  display: block;
+  width: 100%;
+  min-height: 6px;
+  border-radius: 16px 16px 0 0;
+  background: linear-gradient(
+    180deg,
+    #f97316,
+    #ea580c
+  );
+  transition: height 0.3s ease;
+}
+
+.owner-revenue-bar-column small {
+  font-weight: 700;
+  color: #64748b;
+}
+
+@media (max-width: 760px) {
+  .owner-revenue-chart {
+    grid-template-columns: repeat(7, 72px);
+    overflow-x: auto;
+    justify-content: start;
+    padding-bottom: 12px;
+  }
+}

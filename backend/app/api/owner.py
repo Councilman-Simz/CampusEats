@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from fastapi import (
     APIRouter,
     Depends,
@@ -608,6 +608,29 @@ def owner_analytics(
         2,
     )
 
+    revenue_by_day = []
+
+    for days_ago in range(6, -1, -1):
+        day = today - timedelta(days=days_ago)
+
+        day_revenue = round(
+            sum(
+                float(order.total or 0)
+                for order in orders
+                if (
+                    order.created_at
+                    and order.created_at.date() == day
+                )
+            ),
+            2,
+        )
+
+        revenue_by_day.append({
+            "date": day.isoformat(),
+            "label": day.strftime("%a"),
+            "revenue": day_revenue,
+        })
+
     item_sales = {}
 
     if item_ids:
@@ -677,6 +700,7 @@ def owner_analytics(
         "order_count": order_count,
         "total_revenue": total_revenue,
         "today_revenue": today_revenue,
+        "revenue_by_day": revenue_by_day,
         "best_seller": best_seller,
         "best_seller_quantity": (
             item_sales.get(best_seller_id, 0)

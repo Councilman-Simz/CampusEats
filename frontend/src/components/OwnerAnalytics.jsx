@@ -207,6 +207,54 @@ function OwnerAnalytics() {
         </article>
       </section>
 
+      <section className="owner-panel owner-revenue-chart-panel">
+        <div className="owner-panel-heading">
+          <div>
+            <span className="owner-kicker">
+              Revenue trend
+            </span>
+            <h2>Last 7 days</h2>
+          </div>
+        </div>
+
+        <div className="owner-revenue-chart">
+          {(data.revenue_by_day || []).map((day) => {
+            const maxRevenue = Math.max(
+              1,
+              ...(data.revenue_by_day || []).map(
+                (entry) => Number(entry.revenue || 0)
+              )
+            );
+
+            const height = Math.max(
+              6,
+              (Number(day.revenue || 0) / maxRevenue) * 100
+            );
+
+            return (
+              <div
+                className="owner-revenue-bar-column"
+                key={day.date}
+              >
+                <span>
+                  ${Number(day.revenue || 0).toFixed(2)}
+                </span>
+
+                <div className="owner-revenue-bar-track">
+                  <b
+                    style={{
+                      height: `${height}%`,
+                    }}
+                  />
+                </div>
+
+                <small>{day.label}</small>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
       <section className="owner-analytics-content-grid">
         <article className="owner-panel">
           <div className="owner-panel-heading">
