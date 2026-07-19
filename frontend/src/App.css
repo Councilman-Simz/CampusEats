@@ -8648,3 +8648,48 @@ button {
     padding-bottom: 12px;
   }
 }
+
+.owner-top-items-panel {
+  margin-bottom: 24px;
+}
+
+.owner-top-items-list {
+  display: grid;
+  gap: 12px;
+}
+
+.owner-top-item-row {
+  display: grid;
+  grid-template-columns: 48px 1fr auto;
+  gap: 14px;
+  align-items: center;
+  padding: 16px;
+  border-radius: 16px;
+  background: rgba(148, 163, 184, 0.1);
+}
+
+.owner-top-item-rank {
+  font-size: 1.4rem;
+  text-align: center;
+}
+
+.owner-top-item-row div {
+  display: grid;
+  gap: 4px;
+}
+
+.owner-top-item-row strong {
+  font-size: 1rem;
+}
+
+.owner-top-item-row small {
+  color: #64748b;
+}
+
+.owner-top-item-row > b {
+  font-size: 1.1rem;
+}
+
+.owner-empty-text {
+  color: #64748b;
+}

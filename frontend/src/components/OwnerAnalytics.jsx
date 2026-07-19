@@ -255,6 +255,54 @@ function OwnerAnalytics() {
         </div>
       </section>
 
+      <section className="owner-panel owner-top-items-panel">
+        <div className="owner-panel-heading">
+          <div>
+            <span className="owner-kicker">
+              Menu performance
+            </span>
+            <h2>Top selling items</h2>
+          </div>
+        </div>
+
+        {(data.top_selling_items || []).length === 0 ? (
+          <p className="owner-empty-text">
+            No sales data is available yet.
+          </p>
+        ) : (
+          <div className="owner-top-items-list">
+            {(data.top_selling_items || []).map(
+              (item, index) => (
+                <div
+                  className="owner-top-item-row"
+                  key={item.id}
+                >
+                  <span className="owner-top-item-rank">
+                    {index === 0
+                      ? "🥇"
+                      : index === 1
+                        ? "🥈"
+                        : index === 2
+                          ? "🥉"
+                          : `#${index + 1}`}
+                  </span>
+
+                  <div>
+                    <strong>{item.name}</strong>
+                    <small>
+                      {item.quantity} item
+                      {item.quantity !== 1 ? "s" : ""} sold
+                    </small>
+                  </div>
+
+                  <b>{item.quantity}</b>
+                </div>
+              )
+            )}
+          </div>
+        )}
+      </section>
+
       <section className="owner-analytics-content-grid">
         <article className="owner-panel">
           <div className="owner-panel-heading">

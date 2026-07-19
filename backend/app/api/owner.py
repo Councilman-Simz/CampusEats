@@ -676,6 +676,28 @@ def owner_analytics(
         None,
     )
 
+    top_selling_items = []
+
+    for item_id, quantity in sorted(
+        item_sales.items(),
+        key=lambda entry: entry[1],
+        reverse=True,
+    )[:5]:
+        item_name = next(
+            (
+                item.name
+                for item in menu_items
+                if item.id == item_id
+            ),
+            "Unknown item",
+        )
+
+        top_selling_items.append({
+            "id": item_id,
+            "name": item_name,
+            "quantity": quantity,
+        })
+
     return {
         "restaurant_count": len(restaurants),
         "menu_count": len(menu_items),
@@ -707,6 +729,7 @@ def owner_analytics(
             if best_seller_id is not None
             else 0
         ),
+        "top_selling_items": top_selling_items,
     }
 
 
