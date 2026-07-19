@@ -1199,13 +1199,6 @@ function OwnerDashboard() {
         </section>
       )}
 
-      {activeSection === "deals" && (
-        <OwnerDeals
-          menuItems={menuItems}
-          onMenuItemsChange={setMenuItems}
-        />
-      )}
-
       {activeSection === "orders" && (
         <OwnerOrders />
       )}
