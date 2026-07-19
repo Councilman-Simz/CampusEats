@@ -219,9 +219,13 @@ function OwnerDeals({
           : "Flash deal created successfully."
       );
 
-      setSelectedItemId("");
-      setPrice("");
-      setExpiresAt("");
+      if (selectedDeal) {
+        setTimeout(() => {
+          resetForm();
+        }, 2500);
+      } else {
+        resetForm();
+      }
     } catch (requestError) {
       console.error(
         "Failed to save deal:",
@@ -419,11 +423,11 @@ function OwnerDeals({
             disabled={saving}
           >
             {saving
-              ? "Saving deal..."
+              ? "Saving..."
               : selectedDeal
-                ? "Update flash deal"
+                 ? "Update flash deal"
                 : "Create flash deal"}
-          </button>
+              </button>
         </form>
       </article>
 
