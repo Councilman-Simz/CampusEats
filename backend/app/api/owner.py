@@ -11,6 +11,7 @@ from app.core.database import get_db
 from app.core.notification_manager import notification_manager
 from app.models.menu_item import MenuItem
 from app.models.order import Order
+from app.models.order_item import OrderItem
 from app.models.favorite import Favorite
 from app.models.claim import Claim
 from app.models.restaurant import Restaurant
@@ -328,6 +329,21 @@ def delete_owner_menu_item(
             status_code=status.HTTP_409_CONFLICT,
             detail=(
                 "This menu item has existing claims "
+                "and cannot be deleted."
+            ),
+        )
+
+    existing_order = (
+        db.query(OrderItem)
+        .filter(OrderItem.menu_item_id == item.id)
+        .first()
+    )
+
+    if existing_order:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=(
+                "This menu item has existing orders "
                 "and cannot be deleted."
             ),
         )
