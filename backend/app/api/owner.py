@@ -1,3 +1,4 @@
+from datetime import datetime
 from fastapi import (
     APIRouter,
     Depends,
@@ -572,6 +573,86 @@ def owner_analytics(
         else 0
     )
 
+    orders = (
+        db.query(Order)
+        .filter(
+            Order.restaurant_id.in_(
+                restaurant_ids
+            ),
+            Order.status != "cancelled",
+        )
+        .all()
+    )
+
+    order_count = len(orders)
+
+    total_revenue = round(
+        sum(
+            float(order.total or 0)
+            for order in orders
+        ),
+        2,
+    )
+
+    today = datetime.utcnow().date()
+
+    today_revenue = round(
+        sum(
+            float(order.total or 0)
+            for order in orders
+            if (
+                order.created_at
+                and order.created_at.date() == today
+            )
+        ),
+        2,
+    )
+
+    item_sales = {}
+
+    if item_ids:
+        order_items = (
+            db.query(OrderItem)
+            .join(
+                Order,
+                Order.id == OrderItem.order_id,
+            )
+            .filter(
+                OrderItem.menu_item_id.in_(
+                    item_ids
+                ),
+                Order.status != "cancelled",
+            )
+            .all()
+        )
+
+        for order_item in order_items:
+            item_sales[order_item.menu_item_id] = (
+                item_sales.get(
+                    order_item.menu_item_id,
+                    0,
+                )
+                + int(order_item.quantity or 0)
+            )
+
+    best_seller_id = (
+        max(
+            item_sales,
+            key=item_sales.get,
+        )
+        if item_sales
+        else None
+    )
+
+    best_seller = next(
+        (
+            item.name
+            for item in menu_items
+            if item.id == best_seller_id
+        ),
+        None,
+    )
+
     return {
         "restaurant_count": len(restaurants),
         "menu_count": len(menu_items),
@@ -593,6 +674,15 @@ def owner_analytics(
         ),
         "favorite_count": favorite_count,
         "claim_count": claim_count,
+        "order_count": order_count,
+        "total_revenue": total_revenue,
+        "today_revenue": today_revenue,
+        "best_seller": best_seller,
+        "best_seller_quantity": (
+            item_sales.get(best_seller_id, 0)
+            if best_seller_id is not None
+            else 0
+        ),
     }
 
 

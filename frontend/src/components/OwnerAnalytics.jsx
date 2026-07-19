@@ -118,6 +118,52 @@ function OwnerAnalytics() {
         </button>
       </div>
 
+      <section className="owner-analytics-business-grid">
+        <article>
+          <span>💰</span>
+          <div>
+            <p>Total revenue</p>
+            <strong>
+              ${Number(data.total_revenue || 0).toFixed(2)}
+            </strong>
+            <small>Excludes cancelled orders</small>
+          </div>
+        </article>
+
+        <article>
+          <span>📦</span>
+          <div>
+            <p>Total orders</p>
+            <strong>{data.order_count || 0}</strong>
+            <small>Completed and active orders</small>
+          </div>
+        </article>
+
+        <article>
+          <span>📈</span>
+          <div>
+            <p>Today&apos;s revenue</p>
+            <strong>
+              ${Number(data.today_revenue || 0).toFixed(2)}
+            </strong>
+            <small>Revenue generated today</small>
+          </div>
+        </article>
+
+        <article>
+          <span>🏆</span>
+          <div>
+            <p>Best seller</p>
+            <strong>{data.best_seller || "No sales yet"}</strong>
+            <small>
+              {data.best_seller
+                ? `${data.best_seller_quantity || 0} sold`
+                : "Waiting for order data"}
+            </small>
+          </div>
+        </article>
+      </section>
+
       <section className="owner-analytics-stat-grid">
         <article>
           <span>📋</span>
