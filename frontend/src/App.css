@@ -6900,6 +6900,7 @@ button {
   color: #6b7c73;
 }
 
+.owner-analytics-business-grid,
 .owner-analytics-stat-grid {
   display: grid;
   grid-template-columns:
@@ -6907,6 +6908,7 @@ button {
   gap: 14px;
 }
 
+.owner-analytics-business-grid article,
 .owner-analytics-stat-grid article {
   display: flex;
   align-items: center;
@@ -6920,6 +6922,7 @@ button {
     0 10px 26px rgba(18, 74, 52, 0.06);
 }
 
+.owner-analytics-business-grid article > span,
 .owner-analytics-stat-grid article > span {
   display: grid;
   place-items: center;
@@ -6931,22 +6934,26 @@ button {
   font-size: 1.22rem;
 }
 
+.owner-analytics-business-grid article div,
 .owner-analytics-stat-grid article div {
   display: grid;
   gap: 2px;
 }
 
+.owner-analytics-business-grid p,
 .owner-analytics-stat-grid p {
   margin: 0;
   color: #73827a;
   font-size: 0.78rem;
 }
 
+.owner-analytics-business-grid strong,
 .owner-analytics-stat-grid strong {
   color: #153b2c;
   font-size: 1.45rem;
 }
 
+.owner-analytics-business-grid small,
 .owner-analytics-stat-grid small {
   color: #8a9891;
   font-size: 0.68rem;
