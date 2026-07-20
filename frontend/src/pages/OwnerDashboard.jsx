@@ -746,20 +746,6 @@ function OwnerDashboard() {
         <button
           type="button"
           className={
-            activeSection === "inventory"
-              ? "active"
-              : ""
-          }
-          onClick={() =>
-            setActiveSection("inventory")
-          }
-        >
-          Inventory
-        </button>
-
-        <button
-          type="button"
-          className={
             activeSection === "deals"
               ? "active"
               : ""
