@@ -33,6 +33,7 @@ const emptyRestaurantForm = {
 const ownerTabs = [
   { id: "overview", label: "Overview", icon: "▦" },
   { id: "menu", label: "Menu", icon: "☰" },
+  { id: "inventory", label: "Inventory", icon: "📦" },
   { id: "deals", label: "Flash Deals", icon: "⚡" },
   { id: "settings", label: "Restaurant", icon: "⚙" },
 ];
@@ -86,6 +87,8 @@ function OwnerDashboard() {
   const [savingRestaurant, setSavingRestaurant] =
     useState(false);
   const [deletingId, setDeletingId] = useState(null);
+  const [savingInventoryId, setSavingInventoryId] =
+    useState(null);
 
   const [menuMessage, setMenuMessage] = useState("");
   const [menuError, setMenuError] = useState("");
@@ -396,6 +399,66 @@ function OwnerDashboard() {
       );
     } finally {
       setSavingMenu(false);
+    }
+  }
+
+  async function saveInventory(item) {
+    const stockQuantity = Number(
+      item.stock_quantity
+    );
+
+    const lowStockThreshold = Number(
+      item.low_stock_threshold
+    );
+
+    if (
+      Number.isNaN(stockQuantity) ||
+      stockQuantity < 0 ||
+      Number.isNaN(lowStockThreshold) ||
+      lowStockThreshold < 0
+    ) {
+      setMenuError(
+        "Enter valid inventory values."
+      );
+      return;
+    }
+
+    try {
+      setSavingInventoryId(item.id);
+      clearMenuFeedback();
+
+      const response = await api.patch(
+        `/owner/menu/${item.id}`,
+        {
+          stock_quantity: stockQuantity,
+          low_stock_threshold: lowStockThreshold,
+          is_available: stockQuantity > 0,
+        }
+      );
+
+      setMenuItems((currentItems) =>
+        currentItems.map((menuItem) =>
+          menuItem.id === item.id
+            ? response.data
+            : menuItem
+        )
+      );
+
+      setMenuMessage(
+        "Inventory updated successfully."
+      );
+    } catch (error) {
+      console.error(
+        "Inventory update failed:",
+        error
+      );
+
+      setMenuError(
+        error.response?.data?.detail ||
+          "Unable to update inventory."
+      );
+    } finally {
+      setSavingInventoryId(null);
     }
   }
 
@@ -1272,6 +1335,123 @@ function OwnerDashboard() {
               </div>
             )}
           </article>
+        </section>
+      )}
+
+      {activeSection === "inventory" && (
+        <section className="owner-section-block">
+          <div className="owner-section-heading">
+            <div>
+              <span className="owner-kicker">
+                Stock control
+              </span>
+
+              <h2>Inventory management</h2>
+
+              <p>
+                Monitor stock levels, low-stock alerts,
+                and item availability.
+              </p>
+            </div>
+          </div>
+
+          <section className="owner-inventory-grid">
+            {menuItems.map((item) => {
+              const stock = Number(
+                item.stock_quantity || 0
+              );
+
+              const threshold = Number(
+                item.low_stock_threshold || 0
+              );
+
+              const status =
+                stock === 0
+                  ? "Out of stock"
+                  : stock <= threshold
+                    ? "Low stock"
+                    : "In stock";
+
+              return (
+                <article
+                  className="owner-inventory-card"
+                  key={item.id}
+                >
+                  <div>
+                    <span className="owner-kicker">
+                      Item #{item.id}
+                    </span>
+
+                    <h3>{item.name}</h3>
+                  </div>
+
+                  <div className="owner-inventory-metrics">
+                    <label>
+                      <span>Stock</span>
+                      <input
+                        type="number"
+                        min="0"
+                        step="1"
+                        value={item.stock_quantity ?? 0}
+                        onChange={(event) =>
+                          setMenuItems((currentItems) =>
+                            currentItems.map((menuItem) =>
+                              menuItem.id === item.id
+                                ? {
+                                    ...menuItem,
+                                    stock_quantity:
+                                      event.target.value,
+                                  }
+                                : menuItem
+                            )
+                          )
+                        }
+                      />
+                    </label>
+
+                    <label>
+                      <span>Alert at</span>
+                      <input
+                        type="number"
+                        min="0"
+                        step="1"
+                        value={item.low_stock_threshold ?? 5}
+                        onChange={(event) =>
+                          setMenuItems((currentItems) =>
+                            currentItems.map((menuItem) =>
+                              menuItem.id === item.id
+                                ? {
+                                    ...menuItem,
+                                    low_stock_threshold:
+                                      event.target.value,
+                                  }
+                                : menuItem
+                            )
+                          )
+                        }
+                      />
+                    </label>
+
+                    <div>
+                      <span>Status</span>
+                      <strong>{status}</strong>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    className="owner-primary-button"
+                    onClick={() => saveInventory(item)}
+                    disabled={savingInventoryId === item.id}
+                  >
+                    {savingInventoryId === item.id
+                      ? "Saving..."
+                      : "Save inventory"}
+                  </button>
+                </article>
+              );
+            })}
+          </section>
         </section>
       )}
 

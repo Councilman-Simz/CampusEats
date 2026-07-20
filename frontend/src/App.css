@@ -8910,3 +8910,55 @@ button {
 .owner-checkbox-label input {
   width: auto;
 }
+
+.owner-inventory-grid {
+  display: grid;
+  gap: 18px;
+}
+
+.owner-inventory-card {
+  display: grid;
+  gap: 18px;
+  padding: 20px;
+  border-radius: 18px;
+  background: rgba(148, 163, 184, 0.08);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+}
+
+.owner-inventory-card h3 {
+  margin: 6px 0 0;
+}
+
+.owner-inventory-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.owner-inventory-metrics label,
+.owner-inventory-metrics > div {
+  display: grid;
+  gap: 8px;
+}
+
+.owner-inventory-metrics span {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #64748b;
+}
+
+.owner-inventory-metrics input {
+  width: 100%;
+}
+
+.owner-inventory-metrics strong {
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+}
+
+@media (max-width: 760px) {
+  .owner-inventory-metrics {
+    grid-template-columns: 1fr;
+  }
+}
