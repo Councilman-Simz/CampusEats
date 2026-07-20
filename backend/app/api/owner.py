@@ -956,6 +956,45 @@ async def update_owner_order_status(
         current_user=current_user,
     )
 
+    previous_status = (
+        str(order.status or "")
+        .strip()
+        .lower()
+    )
+
+    if (
+        normalized_status == "completed"
+        and previous_status != "completed"
+    ):
+        for order_item in order.items:
+            menu_item = order_item.menu_item
+
+            if menu_item is None:
+                continue
+
+            quantity = int(order_item.quantity or 0)
+            current_stock = int(
+                menu_item.stock_quantity or 0
+            )
+
+            if current_stock < quantity:
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail=(
+                        f"Not enough stock for "
+                        f"{menu_item.name}. "
+                        f"Available: {current_stock}, "
+                        f"required: {quantity}."
+                    ),
+                )
+
+            menu_item.stock_quantity = (
+                current_stock - quantity
+            )
+
+            if menu_item.stock_quantity == 0:
+                menu_item.is_available = False
+
     order.status = normalized_status
 
     db.commit()
