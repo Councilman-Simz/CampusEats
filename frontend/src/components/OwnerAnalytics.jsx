@@ -335,6 +335,35 @@ function OwnerAnalytics() {
         </div>
       </section>
 
+      <section className="owner-panel owner-business-insights-panel">
+        <div className="owner-panel-heading">
+          <div>
+            <span className="owner-kicker">
+              Smart recommendations
+            </span>
+            <h2>Business insights</h2>
+          </div>
+        </div>
+
+        <div className="owner-business-insights-list">
+          {(data.business_insights || []).map(
+            (insight, index) => (
+              <article
+                className="owner-business-insight-card"
+                key={`${insight.title}-${index}`}
+              >
+                <span>💡</span>
+
+                <div>
+                  <strong>{insight.title}</strong>
+                  <p>{insight.message}</p>
+                </div>
+              </article>
+            )
+          )}
+        </div>
+      </section>
+
       <section className="owner-analytics-content-grid">
         <article className="owner-panel">
           <div className="owner-panel-heading">

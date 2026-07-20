@@ -705,6 +705,68 @@ def owner_analytics(
         None,
     )
 
+    business_insights = []
+
+    if order_count == 0:
+        business_insights.append({
+            "title": "No orders yet",
+            "message": (
+                "Your restaurant has not received any orders yet. "
+                "Consider creating a flash deal to attract students."
+            ),
+        })
+    else:
+        business_insights.append({
+            "title": "Revenue performance",
+            "message": (
+                f"You have received {order_count} orders "
+                f"worth ${total_revenue:.2f}."
+            ),
+        })
+
+    if best_seller:
+        business_insights.append({
+            "title": "Top performer",
+            "message": (
+                f"{best_seller} is your best-selling item "
+                f"with {item_sales.get(best_seller_id, 0)} sold."
+            ),
+        })
+
+    if active_deals == 0:
+        business_insights.append({
+            "title": "Promotion opportunity",
+            "message": (
+                "You currently have no active flash deals. "
+                "Creating one may increase engagement."
+            ),
+        })
+    elif active_deals == len(menu_items) and menu_items:
+        business_insights.append({
+            "title": "Too many promotions",
+            "message": (
+                "Every menu item is currently marked as a deal. "
+                "Keep promotions limited so they feel special."
+            ),
+        })
+    else:
+        business_insights.append({
+            "title": "Promotion activity",
+            "message": (
+                f"{active_deals} of {len(menu_items)} menu items "
+                "are currently promoted."
+            ),
+        })
+
+    if favorite_count > claim_count:
+        business_insights.append({
+            "title": "Student interest",
+            "message": (
+                "Students are saving more items than they are claiming. "
+                "Consider stronger discounts or shorter deal windows."
+            ),
+        })
+
     top_selling_items = []
 
     for item_id, quantity in sorted(
@@ -760,6 +822,7 @@ def owner_analytics(
             else 0
         ),
         "top_selling_items": top_selling_items,
+        "business_insights": business_insights,
     }
 
 

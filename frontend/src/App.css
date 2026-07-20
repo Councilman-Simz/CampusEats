@@ -8719,3 +8719,49 @@ button {
 .owner-status-row strong {
   font-size: 1.1rem;
 }
+
+.owner-business-insights-panel {
+  margin-bottom: 24px;
+}
+
+.owner-business-insights-list {
+  display: grid;
+  gap: 16px;
+}
+
+.owner-business-insight-card {
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: 18px;
+  align-items: start;
+  padding: 18px;
+  border-radius: 18px;
+  background: linear-gradient(
+    135deg,
+    rgba(249,115,22,0.10),
+    rgba(234,88,12,0.05)
+  );
+  border: 1px solid rgba(249,115,22,0.15);
+}
+
+.owner-business-insight-card > span {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 1.4rem;
+  background: rgba(249,115,22,0.15);
+}
+
+.owner-business-insight-card strong {
+  display: block;
+  font-size: 1rem;
+  margin-bottom: 6px;
+}
+
+.owner-business-insight-card p {
+  margin: 0;
+  color: #64748b;
+  line-height: 1.5;
+}
