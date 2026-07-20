@@ -595,6 +595,11 @@ def owner_analytics(
         "cancelled": 0,
     }
 
+    hourly_order_counts = {
+        hour: 0
+        for hour in range(24)
+    }
+
     all_orders = (
         db.query(Order)
         .filter(
@@ -614,6 +619,11 @@ def owner_analytics(
 
         if normalized_status in order_status_counts:
             order_status_counts[normalized_status] += 1
+
+        if order.created_at:
+            hourly_order_counts[
+                order.created_at.hour
+            ] += 1
 
     total_revenue = round(
         sum(
@@ -703,6 +713,36 @@ def owner_analytics(
             if item.id == best_seller_id
         ),
         None,
+    )
+
+    peak_hours = [
+        {
+            "hour": hour,
+            "label": datetime.strptime(
+                str(hour),
+                "%H",
+            ).strftime("%-I %p"),
+            "orders": count,
+        }
+        for hour, count in sorted(
+            hourly_order_counts.items(),
+            key=lambda entry: entry[1],
+            reverse=True,
+        )[:5]
+        if count > 0
+    ]
+
+    forecast_summary = (
+        (
+            f"Peak demand is around "
+            f"{peak_hours[0]['label']} based on "
+            f"{peak_hours[0]['orders']} historical orders."
+        )
+        if peak_hours
+        else (
+            "There is not enough order history "
+            "to forecast peak demand yet."
+        )
     )
 
     business_insights = []
@@ -812,6 +852,8 @@ def owner_analytics(
         "claim_count": claim_count,
         "order_count": order_count,
         "order_status_counts": order_status_counts,
+        "peak_hours": peak_hours,
+        "forecast_summary": forecast_summary,
         "total_revenue": total_revenue,
         "today_revenue": today_revenue,
         "revenue_by_day": revenue_by_day,

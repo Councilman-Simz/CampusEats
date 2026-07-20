@@ -364,6 +364,59 @@ function OwnerAnalytics() {
         </div>
       </section>
 
+      <section className="owner-panel owner-demand-forecast-panel">
+        <div className="owner-panel-heading">
+          <div>
+            <span className="owner-kicker">
+              Predictive analytics
+            </span>
+            <h2>Demand forecast</h2>
+          </div>
+        </div>
+
+        <p className="owner-forecast-summary">
+          {data.forecast_summary}
+        </p>
+
+        {(data.peak_hours || []).length === 0 ? (
+          <p className="owner-empty-text">
+            More order history is needed before peak hours can be predicted.
+          </p>
+        ) : (
+          <div className="owner-peak-hours-list">
+            {(data.peak_hours || []).map((entry) => (
+              <div
+                className="owner-peak-hour-row"
+                key={entry.hour}
+              >
+                <span>{entry.label}</span>
+
+                <div>
+                  <b
+                    style={{
+                      width: `${Math.max(
+                        8,
+                        (Number(entry.orders || 0) /
+                          Math.max(
+                            1,
+                            ...(data.peak_hours || []).map(
+                              (item) => Number(item.orders || 0)
+                            )
+                          )) *
+                          100
+                      )}%`,
+                    }}
+                  />
+                </div>
+
+                <strong>{entry.orders}</strong>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
+
       <section className="owner-analytics-content-grid">
         <article className="owner-panel">
           <div className="owner-panel-heading">
