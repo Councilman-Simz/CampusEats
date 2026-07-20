@@ -8765,3 +8765,52 @@ button {
   color: #64748b;
   line-height: 1.5;
 }
+
+.owner-demand-forecast-panel {
+  margin-bottom: 24px;
+}
+
+.owner-forecast-summary {
+  margin: 0 0 20px;
+  color: #475569;
+  line-height: 1.6;
+}
+
+.owner-peak-hours-list {
+  display: grid;
+  gap: 14px;
+}
+
+.owner-peak-hour-row {
+  display: grid;
+  grid-template-columns: 70px 1fr 40px;
+  align-items: center;
+  gap: 16px;
+}
+
+.owner-peak-hour-row span {
+  font-weight: 600;
+}
+
+.owner-peak-hour-row div {
+  height: 12px;
+  background: #e5e7eb;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.owner-peak-hour-row b {
+  display: block;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    #22c55e,
+    #16a34a
+  );
+  border-radius: 999px;
+}
+
+.owner-peak-hour-row strong {
+  text-align: right;
+  font-size: 0.95rem;
+}
