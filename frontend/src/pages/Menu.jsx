@@ -241,6 +241,20 @@ function Menu() {
     setMessage("");
     setSuccessMessage("");
 
+    const availableStock = Number(
+      item.stock_quantity || 0
+    );
+
+    if (
+      item.is_available === false ||
+      availableStock <= 0
+    ) {
+      setMessage(
+        `${item.name} is currently out of stock.`
+      );
+      return;
+    }
+
     const existingRestaurantId =
       cart[0]?.restaurant_id;
 
@@ -264,6 +278,16 @@ function Menu() {
         );
 
       if (existingItem) {
+        if (
+          existingItem.quantity >=
+          availableStock
+        ) {
+          setMessage(
+            `Only ${availableStock} ${item.name} available.`
+          );
+          return currentCart;
+        }
+
         return currentCart.map(
           (cartItem) =>
             cartItem.id === item.id
@@ -292,17 +316,37 @@ function Menu() {
   }
 
   function changeQuantity(itemId, change) {
+    setMessage("");
+
     setCart((currentCart) =>
       currentCart
-        .map((item) =>
-          item.id === itemId
-            ? {
-                ...item,
-                quantity:
-                  item.quantity + change,
-              }
-            : item
-        )
+        .map((item) => {
+          if (item.id !== itemId) {
+            return item;
+          }
+
+          const nextQuantity =
+            item.quantity + change;
+
+          const availableStock = Number(
+            item.stock_quantity || 0
+          );
+
+          if (
+            change > 0 &&
+            nextQuantity > availableStock
+          ) {
+            setMessage(
+              `Only ${availableStock} ${item.name} available.`
+            );
+            return item;
+          }
+
+          return {
+            ...item,
+            quantity: nextQuantity,
+          };
+        })
         .filter(
           (item) => item.quantity > 0
         )
@@ -579,8 +623,28 @@ function Menu() {
                 )}
 
                 <div className="food-card-footer">
-                  <span className="availability-label">
-                    Available today
+                  <span
+                    className={
+                      item.is_available === false ||
+                      Number(item.stock_quantity || 0) === 0
+                        ? "availability-label out-of-stock"
+                        : Number(item.stock_quantity || 0) <=
+                            Number(item.low_stock_threshold || 0)
+                          ? "availability-label low-stock"
+                          : "availability-label"
+                    }
+                  >
+                    {item.is_available === false ||
+                    Number(item.stock_quantity || 0) === 0
+                      ? "Out of stock"
+                      : Number(item.stock_quantity || 0) <=
+                          Number(item.low_stock_threshold || 0)
+                        ? `Only ${Number(
+                            item.stock_quantity || 0
+                          )} left`
+                        : `${Number(
+                            item.stock_quantity || 0
+                          )} available`}
                   </span>
 
                   {cartItem ? (
@@ -620,8 +684,15 @@ function Menu() {
                       onClick={() =>
                         addToCart(item)
                       }
+                      disabled={
+                        item.is_available === false ||
+                        Number(item.stock_quantity || 0) <= 0
+                      }
                     >
-                      Add to Cart
+                      {item.is_available === false ||
+                      Number(item.stock_quantity || 0) <= 0
+                        ? "Out of Stock"
+                        : "Add to Cart"}
                     </button>
                   )}
                 </div>
