@@ -14,6 +14,9 @@ const emptyMenuForm = {
   tags: "",
   ingredients: "",
   expires_at: DEFAULT_EXPIRY,
+  stock_quantity: "0",
+  low_stock_threshold: "5",
+  is_available: true,
 };
 
 const emptyRestaurantForm = {
@@ -272,6 +275,14 @@ function OwnerDashboard() {
       ingredients: item.ingredients || "",
       expires_at:
         item.expires_at || DEFAULT_EXPIRY,
+      stock_quantity: String(
+        item.stock_quantity ?? 0
+      ),
+      low_stock_threshold: String(
+        item.low_stock_threshold ?? 5
+      ),
+      is_available:
+        item.is_available ?? true,
     });
 
     clearMenuFeedback();
@@ -300,14 +311,24 @@ function OwnerDashboard() {
 
     const cleanName = menuForm.name.trim();
     const price = Number(menuForm.price);
+    const stockQuantity = Number(
+      menuForm.stock_quantity
+    );
+    const lowStockThreshold = Number(
+      menuForm.low_stock_threshold
+    );
 
     if (
       !cleanName ||
       Number.isNaN(price) ||
-      price < 0
+      price < 0 ||
+      Number.isNaN(stockQuantity) ||
+      stockQuantity < 0 ||
+      Number.isNaN(lowStockThreshold) ||
+      lowStockThreshold < 0
     ) {
       setMenuError(
-        "Enter a valid item name and price."
+        "Enter valid item, price, and inventory values."
       );
       return;
     }
@@ -320,6 +341,11 @@ function OwnerDashboard() {
       tags: menuForm.tags.trim(),
       ingredients: menuForm.ingredients.trim(),
       expires_at: menuForm.expires_at || null,
+      stock_quantity: stockQuantity,
+      low_stock_threshold: lowStockThreshold,
+      is_available:
+        stockQuantity > 0 &&
+        Boolean(menuForm.is_available),
     };
 
     try {
@@ -968,6 +994,49 @@ function OwnerDashboard() {
                 </label>
               </div>
 
+              <div className="owner-form-row">
+                <label>
+                  Stock quantity
+                  <input
+                    name="stock_quantity"
+                    type="number"
+                    min="0"
+                    step="1"
+                    value={menuForm.stock_quantity}
+                    onChange={handleMenuChange}
+                    required
+                  />
+                </label>
+
+                <label>
+                  Low-stock threshold
+                  <input
+                    name="low_stock_threshold"
+                    type="number"
+                    min="0"
+                    step="1"
+                    value={menuForm.low_stock_threshold}
+                    onChange={handleMenuChange}
+                    required
+                  />
+                </label>
+              </div>
+
+              <label className="owner-checkbox-label">
+                <input
+                  name="is_available"
+                  type="checkbox"
+                  checked={Boolean(menuForm.is_available)}
+                  onChange={(event) =>
+                    setMenuForm((current) => ({
+                      ...current,
+                      is_available: event.target.checked,
+                    }))
+                  }
+                />
+                Available for ordering
+              </label>
+
               <label>
                 Tags
                 <input
@@ -1122,6 +1191,35 @@ function OwnerDashboard() {
                         </div>
 
                         <h3>{item.name}</h3>
+
+                        <div className="owner-inventory-summary">
+                          <span
+                            className={
+                              Number(item.stock_quantity || 0) === 0
+                                ? "owner-stock-badge owner-stock-out"
+                                : Number(item.stock_quantity || 0) <=
+                                    Number(item.low_stock_threshold || 0)
+                                  ? "owner-stock-badge owner-stock-low"
+                                  : "owner-stock-badge owner-stock-ok"
+                            }
+                          >
+                            {Number(item.stock_quantity || 0) === 0
+                              ? "Out of stock"
+                              : Number(item.stock_quantity || 0) <=
+                                  Number(item.low_stock_threshold || 0)
+                                ? "Low stock"
+                                : "In stock"}
+                          </span>
+
+                          <small>
+                            {Number(item.stock_quantity || 0)} available
+                          </small>
+
+                          <small>
+                            Alert at{" "}
+                            {Number(item.low_stock_threshold || 0)}
+                          </small>
+                        </div>
 
                         <p>
                           {item.description ||

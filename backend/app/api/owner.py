@@ -257,6 +257,9 @@ def create_owner_menu_item(
         tags=item_data.tags,
         ingredients=item_data.ingredients,
         expires_at=item_data.expires_at,
+        stock_quantity=item_data.stock_quantity,
+        low_stock_threshold=item_data.low_stock_threshold,
+        is_available=item_data.is_available,
     )
 
     db.add(new_item)

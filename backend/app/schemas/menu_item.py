@@ -1,4 +1,5 @@
 from datetime import datetime
+
 from pydantic import BaseModel
 
 
@@ -10,6 +11,9 @@ class MenuItemBase(BaseModel):
     tags: str | None = None
     ingredients: str | None = None
     expires_at: datetime | None = None
+    stock_quantity: int = 0
+    low_stock_threshold: int = 5
+    is_available: bool = True
 
 
 class MenuItemCreate(MenuItemBase):
@@ -24,6 +28,9 @@ class MenuItemUpdate(BaseModel):
     tags: str | None = None
     ingredients: str | None = None
     expires_at: datetime | None = None
+    stock_quantity: int | None = None
+    low_stock_threshold: int | None = None
+    is_available: bool | None = None
 
 
 class MenuItemResponse(MenuItemBase):

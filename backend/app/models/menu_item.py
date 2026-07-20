@@ -1,4 +1,5 @@
 from sqlalchemy import (
+    Boolean,
     Column,
     DateTime,
     Float,
@@ -59,6 +60,24 @@ class MenuItem(Base):
     image_url = Column(
         String,
         nullable=True,
+    )
+
+    stock_quantity = Column(
+        Integer,
+        nullable=False,
+        default=0,
+    )
+
+    low_stock_threshold = Column(
+        Integer,
+        nullable=False,
+        default=5,
+    )
+
+    is_available = Column(
+        Boolean,
+        nullable=False,
+        default=True,
     )
 
     embedding = Column(
