@@ -8693,3 +8693,29 @@ button {
 .owner-empty-text {
   color: #64748b;
 }
+
+.owner-status-panel {
+  margin-bottom: 24px;
+}
+
+.owner-status-list {
+  display: grid;
+  gap: 12px;
+}
+
+.owner-status-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: rgba(148, 163, 184, 0.10);
+}
+
+.owner-status-row span {
+  font-weight: 600;
+}
+
+.owner-status-row strong {
+  font-size: 1.1rem;
+}

@@ -303,6 +303,38 @@ function OwnerAnalytics() {
         )}
       </section>
 
+      <section className="owner-panel owner-status-panel">
+        <div className="owner-panel-heading">
+          <div>
+            <span className="owner-kicker">
+              Order operations
+            </span>
+            <h2>Order status breakdown</h2>
+          </div>
+        </div>
+
+        <div className="owner-status-list">
+          {[
+            ["pending", "Pending"],
+            ["accepted", "Accepted"],
+            ["preparing", "Preparing"],
+            ["ready", "Ready"],
+            ["completed", "Completed"],
+            ["cancelled", "Cancelled"],
+          ].map(([key, label]) => (
+            <div
+              className="owner-status-row"
+              key={key}
+            >
+              <span>{label}</span>
+              <strong>
+                {data.order_status_counts?.[key] || 0}
+              </strong>
+            </div>
+          ))}
+        </div>
+      </section>
+
       <section className="owner-analytics-content-grid">
         <article className="owner-panel">
           <div className="owner-panel-heading">

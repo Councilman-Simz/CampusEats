@@ -586,6 +586,35 @@ def owner_analytics(
 
     order_count = len(orders)
 
+    order_status_counts = {
+        "pending": 0,
+        "accepted": 0,
+        "preparing": 0,
+        "ready": 0,
+        "completed": 0,
+        "cancelled": 0,
+    }
+
+    all_orders = (
+        db.query(Order)
+        .filter(
+            Order.restaurant_id.in_(
+                restaurant_ids
+            )
+        )
+        .all()
+    )
+
+    for order in all_orders:
+        normalized_status = (
+            str(order.status or "")
+            .strip()
+            .lower()
+        )
+
+        if normalized_status in order_status_counts:
+            order_status_counts[normalized_status] += 1
+
     total_revenue = round(
         sum(
             float(order.total or 0)
@@ -720,6 +749,7 @@ def owner_analytics(
         "favorite_count": favorite_count,
         "claim_count": claim_count,
         "order_count": order_count,
+        "order_status_counts": order_status_counts,
         "total_revenue": total_revenue,
         "today_revenue": today_revenue,
         "revenue_by_day": revenue_by_day,
