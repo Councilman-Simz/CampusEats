@@ -175,6 +175,35 @@ function OwnerDashboard() {
   }, []);
 
   useEffect(() => {
+    function handleRealtimeNotification(event) {
+      const notification = event.detail;
+
+      if (
+        notification?.type === "order_status" &&
+        notification?.status === "completed"
+      ) {
+        loadOwnerData();
+      }
+
+      if (notification?.type === "new_order") {
+        loadOwnerData();
+      }
+    }
+
+    window.addEventListener(
+      "campuseats-notification",
+      handleRealtimeNotification
+    );
+
+    return () => {
+      window.removeEventListener(
+        "campuseats-notification",
+        handleRealtimeNotification
+      );
+    };
+  }, []);
+
+  useEffect(() => {
     if (!restaurant) {
       return;
     }
