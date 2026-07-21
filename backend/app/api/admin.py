@@ -203,3 +203,97 @@ def admin_toggle_restaurant_active(
         "is_active": restaurant.is_active,
         "owner_id": restaurant.owner_id,
     }
+
+
+@router.get("/users")
+def admin_list_users(
+    current_user: User = Depends(require_admin),
+    db: Session = Depends(get_db),
+):
+    users = (
+        db.query(User)
+        .order_by(User.id.desc())
+        .all()
+    )
+
+    return [
+        {
+            "id": user.id,
+            "email": user.email,
+            "role": user.role,
+            "campus": user.campus,
+            "dietary_preferences":
+                user.dietary_preferences,
+        }
+        for user in users
+    ]
+
+
+@router.patch("/users/{user_id}/role")
+def admin_update_user_role(
+    user_id: int,
+    payload: dict,
+    current_user: User = Depends(require_admin),
+    db: Session = Depends(get_db),
+):
+    user = (
+        db.query(User)
+        .filter(User.id == user_id)
+        .first()
+    )
+
+    if user is None:
+        from fastapi import HTTPException, status
+
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found.",
+        )
+
+    allowed_roles = {
+        "student",
+        "restaurant_owner",
+        "restaurant_staff",
+        "admin",
+    }
+
+    next_role = str(
+        payload.get("role", "")
+    ).strip().lower()
+
+    if next_role not in allowed_roles:
+        from fastapi import HTTPException, status
+
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=(
+                "Invalid role. Allowed values: "
+                "student, restaurant_owner, "
+                "restaurant_staff, admin."
+            ),
+        )
+
+    if user.id == current_user.id and next_role != "admin":
+        from fastapi import HTTPException, status
+
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=(
+                "You cannot remove your own "
+                "admin role."
+            ),
+        )
+
+    user.role = next_role
+
+    db.commit()
+    db.refresh(user)
+
+    return {
+        "id": user.id,
+        "email": user.email,
+        "role": user.role,
+        "campus": user.campus,
+        "dietary_preferences":
+            user.dietary_preferences,
+    }

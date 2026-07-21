@@ -9260,3 +9260,44 @@ align-items:flex-start;
     min-width: 0;
   }
 }
+
+.admin-user-panel {
+  display: grid;
+  gap: 20px;
+}
+
+.admin-user-list {
+  display: grid;
+  gap: 14px;
+}
+
+.admin-user-row {
+  display: grid;
+  grid-template-columns: 1fr 220px;
+  gap: 18px;
+  align-items: center;
+  padding: 18px;
+  border-radius: 16px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.admin-user-row h3 {
+  margin: 6px 0;
+  overflow-wrap: anywhere;
+}
+
+.admin-user-row p {
+  margin: 0;
+  color: #64748b;
+}
+
+.admin-user-row select {
+  width: 100%;
+}
+
+@media (max-width: 760px) {
+  .admin-user-row {
+    grid-template-columns: 1fr;
+  }
+}

@@ -4,6 +4,7 @@ import api from "../services/api";
 function AdminDashboard() {
   const [data, setData] = useState(null);
   const [restaurants, setRestaurants] = useState([]);
+  const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [updatingRestaurantId, setUpdatingRestaurantId] =
     useState(null);
@@ -18,15 +19,24 @@ function AdminDashboard() {
       const [
         overviewResponse,
         restaurantsResponse,
+        usersResponse,
       ] = await Promise.all([
         api.get("/admin/overview"),
         api.get("/admin/restaurants"),
+        api.get("/admin/users"),
       ]);
 
       setData(overviewResponse.data);
+
       setRestaurants(
         Array.isArray(restaurantsResponse.data)
           ? restaurantsResponse.data
+          : []
+      );
+
+      setUsers(
+        Array.isArray(usersResponse.data)
+          ? usersResponse.data
           : []
       );
     } catch (requestError) {
@@ -136,6 +146,47 @@ function AdminDashboard() {
       );
     } finally {
       setUpdatingRestaurantId(null);
+    }
+  }
+
+  async function updateUserRole(
+    userId,
+    nextRole
+  ) {
+    try {
+      setError("");
+      setMessage("");
+
+      const response = await api.patch(
+        `/admin/users/${userId}/role`,
+        {
+          role: nextRole,
+        }
+      );
+
+      setUsers((currentUsers) =>
+        currentUsers.map((user) =>
+          user.id === userId
+            ? response.data
+            : user
+        )
+      );
+
+      setMessage(
+        `User role updated to ${nextRole}.`
+      );
+
+      await loadOverview();
+    } catch (requestError) {
+      console.error(
+        "User role update failed:",
+        requestError
+      );
+
+      setError(
+        requestError.response?.data?.detail ||
+          "Unable to update user role."
+      );
     }
   }
 
@@ -366,6 +417,75 @@ function AdminDashboard() {
                         : "Activate"}
                   </button>
                 </div>
+              </article>
+            ))}
+          </div>
+        )}
+      </section>
+
+      <section className="owner-panel admin-user-panel">
+        <div className="owner-panel-heading">
+          <div>
+            <span className="owner-kicker">
+              Account administration
+            </span>
+            <h2>User management</h2>
+            <p>
+              Review registered users and manage
+              platform roles.
+            </p>
+          </div>
+        </div>
+
+        {users.length === 0 ? (
+          <p className="owner-empty-text">
+            No users are registered yet.
+          </p>
+        ) : (
+          <div className="admin-user-list">
+            {users.map((user) => (
+              <article
+                className="admin-user-row"
+                key={user.id}
+              >
+                <div>
+                  <span className="owner-kicker">
+                    User #{user.id}
+                  </span>
+
+                  <h3>{user.email}</h3>
+
+                  <p>
+                    {user.campus ||
+                      "Campus not provided"}
+                    {" · "}
+                    {user.dietary_preferences ||
+                      "No dietary preference"}
+                  </p>
+                </div>
+
+                <select
+                  value={user.role || "student"}
+                  onChange={(event) =>
+                    updateUserRole(
+                      user.id,
+                      event.target.value
+                    )
+                  }
+                >
+                  <option value="student">
+                    Student
+                  </option>
+                  <option value="restaurant_owner">
+                    Restaurant owner
+                  </option>
+                  <option value="restaurant_staff">
+                    Restaurant staff
+                  </option>
+                  <option value="admin">
+                    Admin
+                  </option>
+                </select>
               </article>
             ))}
           </div>
