@@ -9194,3 +9194,69 @@ align-items:flex-start;
     align-items: flex-start;
   }
 }
+
+.admin-restaurant-panel {
+  display: grid;
+  gap: 20px;
+}
+
+.admin-restaurant-list {
+  display: grid;
+  gap: 16px;
+}
+
+.admin-restaurant-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 20px;
+  align-items: center;
+  padding: 18px;
+  border-radius: 16px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.admin-restaurant-copy h3 {
+  margin: 6px 0;
+}
+
+.admin-restaurant-copy p {
+  margin: 0;
+  color: #64748b;
+}
+
+.admin-restaurant-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.admin-restaurant-meta span {
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: white;
+  font-size: 0.82rem;
+  color: #475569;
+}
+
+.admin-restaurant-actions {
+  display: grid;
+  gap: 10px;
+  min-width: 170px;
+}
+
+.admin-restaurant-actions select,
+.admin-restaurant-actions button {
+  width: 100%;
+}
+
+@media (max-width: 760px) {
+  .admin-restaurant-row {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-restaurant-actions {
+    min-width: 0;
+  }
+}

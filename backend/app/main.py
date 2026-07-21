@@ -18,6 +18,7 @@ from app.api.chat import router as chat_router
 from app.api.analytics import router as analytics_router
 from app.api.notifications import router as notification_router
 from app.api.owner_insights import router as owner_insights_router
+from app.api.admin import router as admin_router
 from app.api.partner_restaurants import (
     router as partner_restaurants_router,
 )
@@ -61,6 +62,7 @@ app.include_router(owner_router)
 app.include_router(orders_router)
 app.include_router(notification_router)
 app.include_router(owner_insights_router)
+app.include_router(admin_router)
 
 
 @app.get("/")

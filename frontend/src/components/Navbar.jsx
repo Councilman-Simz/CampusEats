@@ -56,9 +56,12 @@ function Navbar({
     localStorage.getItem("user") || "null"
   );
 
+  const isAdmin =
+    storedUser?.role === "admin";
+
   const isRestaurantOwner =
     storedUser?.role === "restaurant_owner" ||
-    storedUser?.role === "admin";
+    isAdmin;
 
   return (
     <aside className="sidebar">
@@ -112,6 +115,26 @@ function Navbar({
             <span>Owner Portal</span>
           </button>
         )}
+        {isAdmin && (
+          <button
+            type="button"
+            className={`nav-item ${
+              activePage === "admin"
+                ? "active"
+                : ""
+            }`}
+            onClick={() =>
+              setActivePage("admin")
+            }
+          >
+            <span className="nav-icon">
+              🛠️
+            </span>
+
+            <span>Admin Portal</span>
+          </button>
+        )}
+
       </nav>
 
       <div className="sidebar-notification-area">

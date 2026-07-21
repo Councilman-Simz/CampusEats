@@ -12,6 +12,7 @@ import ImageSearch from "./pages/ImageSearch";
 import Chat from "./pages/Chat";
 import Analytics from "./pages/Analytics";
 import OwnerDashboard from "./pages/OwnerDashboard";
+import AdminDashboard from "./pages/AdminDashboard";
 import MyOrders from "./pages/MyOrders";
 import "./App.css";
 
@@ -89,6 +90,9 @@ if (activePage === "analytics") {
 }
 if (activePage === "owner") {
   return <OwnerDashboard />;
+}
+if (activePage === "admin") {
+  return <AdminDashboard />;
 }
 if (activePage === "my-orders") {
   return <MyOrders />;
