@@ -1,5 +1,13 @@
-import { useEffect, useMemo, useState } from "react";
+import {
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+
+import MealDetailsModal from "../components/MealDetailsModal";
+import FoodCard from "../components/FoodCard";
 import api from "../services/api";
+import { getCurrentUserId } from "../utils/auth";
 
 import healthyBowl from "../assets/food/healthy-spinach-bowl.jpg";
 import bbqPlatter from "../assets/food/grilled-bbq-platter.jpg";
@@ -8,10 +16,17 @@ import cheesecake from "../assets/food/orange-cheesecake.jpg";
 import skewers from "../assets/food/grilled-beef-skewers.jpg";
 import bbqChicken from "../assets/food/bbq-sausages-and-chicken.jpg";
 
-function getFoodImage(name = "", tags = "", category = "") {
-  const text = `${name} ${tags} ${category}`.toLowerCase();
+function getFoodImage(
+  name = "",
+  tags = "",
+  category = ""
+) {
+  const text =
+    `${name} ${tags} ${category}`.toLowerCase();
 
-  if (text.includes("pizza")) return pizza;
+  if (text.includes("pizza")) {
+    return pizza;
+  }
 
   if (
     text.includes("bbq") ||
@@ -24,7 +39,8 @@ function getFoodImage(name = "", tags = "", category = "") {
   if (
     text.includes("chicken") ||
     text.includes("wings") ||
-    text.includes("barbecue")
+    text.includes("barbecue") ||
+    text.includes("burger")
   ) {
     return bbqPlatter;
   }
@@ -34,7 +50,8 @@ function getFoodImage(name = "", tags = "", category = "") {
     text.includes("salad") ||
     text.includes("healthy") ||
     text.includes("spinach") ||
-    text.includes("vegan")
+    text.includes("vegan") ||
+    text.includes("tofu")
   ) {
     return healthyBowl;
   }
@@ -42,7 +59,8 @@ function getFoodImage(name = "", tags = "", category = "") {
   if (
     text.includes("dessert") ||
     text.includes("cake") ||
-    text.includes("cheesecake")
+    text.includes("cheesecake") ||
+    text.includes("muffin")
   ) {
     return cheesecake;
   }
@@ -59,14 +77,46 @@ function getFoodImage(name = "", tags = "", category = "") {
   return healthyBowl;
 }
 
-function RestaurantDetails({ restaurant, onBack }) {
+function RestaurantDetails({
+  restaurant,
+  onBack,
+}) {
   const [menuItems, setMenuItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedMeal, setSelectedMeal] =
+    useState(null);
   const [message, setMessage] = useState("");
-  const [isRestaurantFavorite, setIsRestaurantFavorite] = useState(() => {
+  const [successMessage, setSuccessMessage] =
+    useState("");
+
+  const [mealFavorites, setMealFavorites] =
+    useState([]);
+  const [
+    favoriteLoadingIds,
+    setFavoriteLoadingIds,
+  ] = useState([]);
+
+  const [cart, setCart] = useState(() => {
+    try {
+      const saved = localStorage.getItem(
+        "campusEatsCart"
+      );
+
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  const [
+    isRestaurantFavorite,
+    setIsRestaurantFavorite,
+  ] = useState(() => {
     try {
       const saved = JSON.parse(
-        localStorage.getItem("favoriteRestaurants") || "[]"
+        localStorage.getItem(
+          "favoriteRestaurants"
+        ) || "[]"
       );
 
       return saved.includes(restaurant.id);
@@ -75,42 +125,70 @@ function RestaurantDetails({ restaurant, onBack }) {
     }
   });
 
-  const [mealFavorites, setMealFavorites] = useState(() => {
-    try {
-      return JSON.parse(
-        localStorage.getItem("menuFavorites") || "[]"
-      );
-    } catch {
-      return [];
-    }
-  });
+  useEffect(() => {
+    localStorage.setItem(
+      "campusEatsCart",
+      JSON.stringify(cart)
+    );
+  }, [cart]);
 
   useEffect(() => {
-    async function loadRestaurantMenu() {
+    async function loadRestaurantData() {
       setLoading(true);
       setMessage("");
 
       try {
-        const response = await api.get("/menu/");
-        const allItems = Array.isArray(response.data)
-          ? response.data
+        const [
+          menuResponse,
+          favoritesResponse,
+        ] = await Promise.all([
+          api.get("/menu/"),
+          api.get("/favorites/", {
+            params: {
+              user_id: getCurrentUserId(),
+            },
+          }),
+        ]);
+
+        const allItems = Array.isArray(
+          menuResponse.data
+        )
+          ? menuResponse.data
           : [];
 
-        const restaurantItems = allItems.filter(
-          (item) =>
-            Number(item.restaurant_id) === Number(restaurant.id)
+        setMenuItems(
+          allItems.filter(
+            (item) =>
+              Number(item.restaurant_id) ===
+              Number(restaurant.id)
+          )
         );
 
-        setMenuItems(restaurantItems);
+        const favoriteItems = Array.isArray(
+          favoritesResponse.data
+        )
+          ? favoritesResponse.data
+          : [];
+
+        setMealFavorites(
+          favoriteItems.map((item) => item.id)
+        );
       } catch (error) {
-        console.error("Restaurant menu loading failed:", error);
-        setMessage("Could not load this restaurant's menu.");
+        console.error(
+          "Restaurant details loading failed:",
+          error
+        );
+
+        setMessage(
+          error.response?.data?.detail ||
+            "Could not load this restaurant."
+        );
       } finally {
         setLoading(false);
       }
     }
 
-    loadRestaurantMenu();
+    loadRestaurantData();
   }, [restaurant.id]);
 
   const lowestPrice = useMemo(() => {
@@ -119,7 +197,9 @@ function RestaurantDetails({ restaurant, onBack }) {
     }
 
     return Math.min(
-      ...menuItems.map((item) => Number(item.price) || 0)
+      ...menuItems.map(
+        (item) => Number(item.price) || 0
+      )
     );
   }, [menuItems]);
 
@@ -128,14 +208,20 @@ function RestaurantDetails({ restaurant, onBack }) {
 
     try {
       savedRestaurants = JSON.parse(
-        localStorage.getItem("favoriteRestaurants") || "[]"
+        localStorage.getItem(
+          "favoriteRestaurants"
+        ) || "[]"
       );
     } catch {
       savedRestaurants = [];
     }
 
-    const updated = savedRestaurants.includes(restaurant.id)
-      ? savedRestaurants.filter((id) => id !== restaurant.id)
+    const updated = savedRestaurants.includes(
+      restaurant.id
+    )
+      ? savedRestaurants.filter(
+          (id) => id !== restaurant.id
+        )
       : [...savedRestaurants, restaurant.id];
 
     localStorage.setItem(
@@ -143,26 +229,197 @@ function RestaurantDetails({ restaurant, onBack }) {
       JSON.stringify(updated)
     );
 
-    setIsRestaurantFavorite(updated.includes(restaurant.id));
+    setIsRestaurantFavorite(
+      updated.includes(restaurant.id)
+    );
   }
 
-  function toggleMealFavorite(itemId) {
-    setMealFavorites((current) => {
-      const updated = current.includes(itemId)
-        ? current.filter((id) => id !== itemId)
-        : [...current, itemId];
+  async function toggleMealFavorite(itemId) {
+    const userId = getCurrentUserId();
 
-      localStorage.setItem(
-        "menuFavorites",
-        JSON.stringify(updated)
+    if (!userId) {
+      setMessage(
+        "Log in before saving a favorite."
+      );
+      return;
+    }
+
+    if (
+      favoriteLoadingIds.includes(itemId)
+    ) {
+      return;
+    }
+
+    const isSaved =
+      mealFavorites.includes(itemId);
+
+    setFavoriteLoadingIds((current) => [
+      ...current,
+      itemId,
+    ]);
+
+    try {
+      if (isSaved) {
+        await api.delete(
+          `/favorites/${itemId}`,
+          {
+            params: {
+              user_id: userId,
+            },
+          }
+        );
+
+        setMealFavorites((current) =>
+          current.filter(
+            (id) => id !== itemId
+          )
+        );
+      } else {
+        await api.post(
+          `/favorites/${itemId}`,
+          null,
+          {
+            params: {
+              user_id: userId,
+            },
+          }
+        );
+
+        setMealFavorites((current) => [
+          ...current,
+          itemId,
+        ]);
+      }
+    } catch (error) {
+      console.error(
+        "Favorite update failed:",
+        error
       );
 
-      return updated;
+      setMessage(
+        error.response?.data?.detail ||
+          "Unable to update favorite."
+      );
+    } finally {
+      setFavoriteLoadingIds((current) =>
+        current.filter(
+          (id) => id !== itemId
+        )
+      );
+    }
+  }
+
+  function addToCart(item) {
+    setMessage("");
+    setSuccessMessage("");
+
+    const stock = Number(
+      item.stock_quantity || 0
+    );
+
+    if (
+      item.is_available === false ||
+      stock <= 0
+    ) {
+      setMessage(
+        `${item.name} is out of stock.`
+      );
+      return;
+    }
+
+    const existingRestaurantId =
+      cart[0]?.restaurant_id;
+
+    if (
+      existingRestaurantId &&
+      Number(existingRestaurantId) !==
+        Number(item.restaurant_id)
+    ) {
+      setMessage(
+        "Your cart contains items from another restaurant. Clear that cart before adding this meal."
+      );
+      return;
+    }
+
+    setCart((current) => {
+      const existing = current.find(
+        (cartItem) =>
+          cartItem.id === item.id
+      );
+
+      if (existing) {
+        if (existing.quantity >= stock) {
+          setMessage(
+            `Only ${stock} ${item.name} available.`
+          );
+          return current;
+        }
+
+        return current.map((cartItem) =>
+          cartItem.id === item.id
+            ? {
+                ...cartItem,
+                quantity:
+                  cartItem.quantity + 1,
+              }
+            : cartItem
+        );
+      }
+
+      return [
+        ...current,
+        {
+          ...item,
+          quantity: 1,
+        },
+      ];
     });
+
+    setSuccessMessage(
+      `${item.name} added to your cart.`
+    );
+  }
+
+  function changeQuantity(itemId, change) {
+    setMessage("");
+
+    setCart((current) =>
+      current
+        .map((item) => {
+          if (item.id !== itemId) {
+            return item;
+          }
+
+          const next =
+            item.quantity + change;
+
+          const stock = Number(
+            item.stock_quantity || 0
+          );
+
+          if (
+            change > 0 &&
+            next > stock
+          ) {
+            setMessage(
+              `Only ${stock} ${item.name} available.`
+            );
+            return item;
+          }
+
+          return {
+            ...item,
+            quantity: next,
+          };
+        })
+        .filter(
+          (item) => item.quantity > 0
+        )
+    );
   }
 
   return (
-    <section className="restaurant-details-page">
+    <section className="restaurant-details-page menu-page">
       <div className="restaurant-details-topbar">
         <button
           type="button"
@@ -186,7 +443,9 @@ function RestaurantDetails({ restaurant, onBack }) {
               : "Save restaurant"
           }
         >
-          {isRestaurantFavorite ? "♥" : "♡"}
+          {isRestaurantFavorite
+            ? "♥"
+            : "♡"}
         </button>
       </div>
 
@@ -212,11 +471,15 @@ function RestaurantDetails({ restaurant, onBack }) {
 
           <div className="restaurant-hero-details">
             <span>
-              📍 {restaurant.location || "Location unavailable"}
+              📍{" "}
+              {restaurant.location ||
+                "Location unavailable"}
             </span>
 
             <span>
-              🕒 {restaurant.hours || "Hours unavailable"}
+              🕒{" "}
+              {restaurant.hours ||
+                "Hours unavailable"}
             </span>
           </div>
 
@@ -227,7 +490,8 @@ function RestaurantDetails({ restaurant, onBack }) {
 
             {lowestPrice !== null && (
               <span>
-                Meals from ${lowestPrice.toFixed(2)}
+                Meals from $
+                {lowestPrice.toFixed(2)}
               </span>
             )}
           </div>
@@ -236,7 +500,9 @@ function RestaurantDetails({ restaurant, onBack }) {
 
       <div className="restaurant-summary-grid">
         <article className="restaurant-summary-card">
-          <div className="restaurant-summary-icon">🍽️</div>
+          <div className="restaurant-summary-icon">
+            🍽️
+          </div>
 
           <div>
             <strong>{menuItems.length}</strong>
@@ -245,7 +511,9 @@ function RestaurantDetails({ restaurant, onBack }) {
         </article>
 
         <article className="restaurant-summary-card">
-          <div className="restaurant-summary-icon">⭐</div>
+          <div className="restaurant-summary-icon">
+            ⭐
+          </div>
 
           <div>
             <strong>4.8</strong>
@@ -254,13 +522,17 @@ function RestaurantDetails({ restaurant, onBack }) {
         </article>
 
         <article className="restaurant-summary-card">
-          <div className="restaurant-summary-icon">💵</div>
+          <div className="restaurant-summary-icon">
+            💵
+          </div>
 
           <div>
             <strong>
               {lowestPrice === null
                 ? "—"
-                : `$${lowestPrice.toFixed(2)}`}
+                : `$${lowestPrice.toFixed(
+                    2
+                  )}`}
             </strong>
             <span>Starting price</span>
           </div>
@@ -269,7 +541,9 @@ function RestaurantDetails({ restaurant, onBack }) {
 
       <div className="restaurant-section-heading">
         <div>
-          <p className="eyebrow">Available today</p>
+          <p className="eyebrow">
+            Available today
+          </p>
           <h2>Menu</h2>
         </div>
 
@@ -290,109 +564,88 @@ function RestaurantDetails({ restaurant, onBack }) {
         </p>
       )}
 
-      {!loading && menuItems.length === 0 && (
-        <div className="empty-state">
-          <div className="empty-state-icon">🍽️</div>
-          <h3>No menu items available</h3>
-          <p>
-            This restaurant has not added any meals yet.
-          </p>
-        </div>
+      {successMessage && (
+        <p className="menu-success-message">
+          {successMessage}
+        </p>
       )}
+
+      {!loading &&
+        menuItems.length === 0 && (
+          <div className="empty-state">
+            <div className="empty-state-icon">
+              🍽️
+            </div>
+            <h3>
+              No menu items available
+            </h3>
+            <p>
+              This restaurant has not added
+              any meals yet.
+            </p>
+          </div>
+        )}
 
       <div className="restaurant-menu-grid">
         {menuItems.map((item) => {
-          const isFavorite = mealFavorites.includes(item.id);
+          const cartItem = cart.find(
+            (current) =>
+              current.id === item.id
+          );
 
           return (
-            <article
-              className="restaurant-menu-card"
+            <FoodCard
               key={item.id}
-            >
-              <div className="restaurant-menu-image-wrapper">
-                <img
-                  src={getFoodImage(item.name, item.tags)}
-                  alt={item.name}
-                />
-
-                <button
-                  type="button"
-                  className={
-                    isFavorite
-                      ? "favorite-button saved"
-                      : "favorite-button"
-                  }
-                  onClick={() =>
-                    toggleMealFavorite(item.id)
-                  }
-                  aria-label={
-                    isFavorite
-                      ? `Remove ${item.name} from favorites`
-                      : `Save ${item.name}`
-                  }
-                >
-                  {isFavorite ? "♥" : "♡"}
-                </button>
-
-                {Number(item.price) <= 8 && (
-                  <span className="budget-badge">
-                    Student deal
-                  </span>
-                )}
-              </div>
-
-              <div className="restaurant-menu-body">
-                <div className="card-heading">
-                  <h3>{item.name}</h3>
-
-                  <strong className="price">
-                    ${Number(item.price).toFixed(2)}
-                  </strong>
-                </div>
-
-                <p className="restaurant-menu-description">
-                  {item.description ||
-                    "Fresh meal available today."}
-                </p>
-
-                <div className="tag-row">
-                  {(item.tags || "")
-                    .split(",")
-                    .map((tag) => tag.trim())
-                    .filter(Boolean)
-                    .slice(0, 3)
-                    .map((tag) => (
-                      <span className="tag" key={tag}>
-                        {tag}
-                      </span>
-                    ))}
-                </div>
-
-                {item.ingredients && (
-                  <p className="ingredients-text">
-                    <strong>Ingredients:</strong>{" "}
-                    {item.ingredients}
-                  </p>
-                )}
-
-                <button
-                  type="button"
-                  className="card-action"
-                  onClick={() =>
-                    window.alert(
-                      `${item.name} costs $${Number(
-                        item.price
-                      ).toFixed(2)}`
-                    )
-                  }
-                >
-                  View meal details
-                </button>
-              </div>
-            </article>
+              item={item}
+              imageSrc={getFoodImage(
+                item.name,
+                item.tags,
+                item.category
+              )}
+              isFavorite={mealFavorites.includes(
+                item.id
+              )}
+              favoriteDisabled={
+                favoriteLoadingIds.includes(
+                  item.id
+                )
+              }
+              cartQuantity={
+                cartItem?.quantity || 0
+              }
+              onToggleFavorite={
+                toggleMealFavorite
+              }
+              onViewDetails={setSelectedMeal}
+              onAddToCart={addToCart}
+              onDecrease={(itemId) =>
+                changeQuantity(itemId, -1)
+              }
+              onIncrease={(itemId) =>
+                changeQuantity(itemId, 1)
+              }
+            />
           );
         })}
       </div>
+
+      <MealDetailsModal
+        item={selectedMeal}
+        restaurant={restaurant}
+        isFavorite={
+          selectedMeal
+            ? mealFavorites.includes(
+                selectedMeal.id
+              )
+            : false
+        }
+        onToggleFavorite={
+          toggleMealFavorite
+        }
+        onClose={() =>
+          setSelectedMeal(null)
+        }
+      />
     </section>
   );
 }

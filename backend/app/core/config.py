@@ -1,4 +1,4 @@
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
@@ -7,8 +7,17 @@ class Settings(BaseSettings):
     ALGORITHM: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int
 
-    class Config:
-        env_file = ".env"
+    STRIPE_SECRET_KEY: str
+    STRIPE_PUBLISHABLE_KEY: str
+    STRIPE_WEBHOOK_SECRET: str
+    FRONTEND_URL: str
+    STRIPE_SUCCESS_URL: str
+    STRIPE_CANCEL_URL: str
+
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        extra="ignore",
+    )
 
 
 settings = Settings()

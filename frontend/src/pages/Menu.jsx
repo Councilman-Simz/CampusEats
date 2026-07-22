@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import api from "../services/api";
+import FoodCard from "../components/FoodCard";
+import MealDetailsModal from "../components/MealDetailsModal";
 
 import healthyBowl from "../assets/food/healthy-spinach-bowl.jpg";
 import bbqPlatter from "../assets/food/grilled-bbq-platter.jpg";
@@ -72,16 +73,18 @@ function FoodImage({ item }) {
 function Menu() {
   const [items, setItems] = useState([]);
   const [message, setMessage] = useState("");
-  const [successMessage, setSuccessMessage] =
-    useState("");
+
   const [loading, setLoading] = useState(true);
   const [checkingOut, setCheckingOut] =
     useState(false);
   const [searchText, setSearchText] =
     useState("");
+
   const [selectedTag, setSelectedTag] =
     useState("all");
   const [cartOpen, setCartOpen] = useState(false);
+  const [selectedMeal, setSelectedMeal] =
+    useState(null);
 
   const [cart, setCart] = useState(() => {
     try {
@@ -107,36 +110,6 @@ function Menu() {
     }
   });
 
-  useEffect(() => {
-    async function loadMenu() {
-      try {
-        setLoading(true);
-        setMessage("");
-
-        const response = await api.get("/menu/");
-
-        setItems(
-          Array.isArray(response.data)
-            ? response.data
-            : []
-        );
-      } catch (error) {
-        console.error(
-          "Menu loading failed:",
-          error
-        );
-
-        setMessage(
-          error.response?.data?.detail ||
-            "Could not load menu items."
-        );
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    loadMenu();
-  }, []);
 
   useEffect(() => {
     localStorage.setItem(
@@ -530,177 +503,49 @@ function Menu() {
 
       <div className="card-grid">
         {filteredItems.map((item) => {
-          const isFavorite =
-            favorites.includes(item.id);
-
           const cartItem = cart.find(
             (currentItem) =>
               currentItem.id === item.id
           );
 
           return (
-            <article
-              className="food-card"
+            <FoodCard
               key={item.id}
-            >
-              <div className="food-image-wrapper">
-                <FoodImage item={item} />
-
-                <button
-                  type="button"
-                  className={
-                    isFavorite
-                      ? "favorite-button saved"
-                      : "favorite-button"
-                  }
-                  onClick={() =>
-                    toggleFavorite(item.id)
-                  }
-                  aria-label={
-                    isFavorite
-                      ? `Remove ${item.name} from favorites`
-                      : `Add ${item.name} to favorites`
-                  }
-                >
-                  {isFavorite ? "♥" : "♡"}
-                </button>
-
-                {Number(item.price) <= 8 && (
-                  <span className="budget-badge">
-                    Student deal
-                  </span>
-                )}
-              </div>
-
-              <div className="food-body">
-                <div className="card-heading">
-                  <div>
-                    <p className="food-category">
-                      Campus favorite
-                    </p>
-
-                    <h3>{item.name}</h3>
-                  </div>
-
-                  <strong className="price">
-                    $
-                    {Number(
-                      item.price || 0
-                    ).toFixed(2)}
-                  </strong>
-                </div>
-
-                <p className="food-description">
-                  {item.description ||
-                    "Freshly prepared meal available near campus."}
-                </p>
-
-                <div className="tag-row">
-                  {(item.tags || "")
-                    .split(",")
-                    .map((tag) =>
-                      tag.trim()
-                    )
-                    .filter(Boolean)
-                    .slice(0, 3)
-                    .map((tag) => (
-                      <span
-                        className="tag"
-                        key={tag}
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                </div>
-
-                {item.ingredients && (
-                  <p className="ingredients-text">
-                    <strong>
-                      Ingredients:
-                    </strong>{" "}
-                    {item.ingredients}
-                  </p>
-                )}
-
-                <div className="food-card-footer">
-                  <span
-                    className={
-                      item.is_available === false ||
-                      Number(item.stock_quantity || 0) === 0
-                        ? "availability-label out-of-stock"
-                        : Number(item.stock_quantity || 0) <=
-                            Number(item.low_stock_threshold || 0)
-                          ? "availability-label low-stock"
-                          : "availability-label"
-                    }
-                  >
-                    {item.is_available === false ||
-                    Number(item.stock_quantity || 0) === 0
-                      ? "Out of stock"
-                      : Number(item.stock_quantity || 0) <=
-                          Number(item.low_stock_threshold || 0)
-                        ? `Only ${Number(
-                            item.stock_quantity || 0
-                          )} left`
-                        : `${Number(
-                            item.stock_quantity || 0
-                          )} available`}
-                  </span>
-
-                  {cartItem ? (
-                    <div className="menu-inline-quantity">
-                      <button
-                        type="button"
-                        onClick={() =>
-                          changeQuantity(
-                            item.id,
-                            -1
-                          )
-                        }
-                      >
-                        −
-                      </button>
-
-                      <span>
-                        {cartItem.quantity}
-                      </span>
-
-                      <button
-                        type="button"
-                        onClick={() =>
-                          changeQuantity(
-                            item.id,
-                            1
-                          )
-                        }
-                      >
-                        +
-                      </button>
-                    </div>
-                  ) : (
-                    <button
-                      type="button"
-                      className="card-action"
-                      onClick={() =>
-                        addToCart(item)
-                      }
-                      disabled={
-                        item.is_available === false ||
-                        Number(item.stock_quantity || 0) <= 0
-                      }
-                    >
-                      {item.is_available === false ||
-                      Number(item.stock_quantity || 0) <= 0
-                        ? "Out of Stock"
-                        : "Add to Cart"}
-                    </button>
-                  )}
-                </div>
-              </div>
-            </article>
+              item={item}
+              imageSrc={getFoodImage(
+                item.name,
+                item.tags
+              )}
+              isFavorite={favorites.includes(
+                item.id
+              )}
+              cartQuantity={
+                cartItem?.quantity || 0
+              }
+              onToggleFavorite={toggleFavorite}
+              onViewDetails={setSelectedMeal}
+              onAddToCart={addToCart}
+              onDecrease={(itemId) =>
+                changeQuantity(itemId, -1)
+              }
+              onIncrease={(itemId) =>
+                changeQuantity(itemId, 1)
+              }
+            />
           );
         })}
       </div>
+
+      <MealDetailsModal
+        item={selectedMeal}
+        isFavorite={
+          selectedMeal
+            ? favorites.includes(selectedMeal.id)
+            : false
+        }
+        onToggleFavorite={toggleFavorite}
+        onClose={() => setSelectedMeal(null)}
+      />
 
       {cartOpen && (
         <>

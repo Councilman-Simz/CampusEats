@@ -59,6 +59,11 @@ async def image_search(
             image_bytes=image_bytes,
             limit=limit,
         )
+    except ValueError as error:
+        raise HTTPException(
+            status_code=422,
+            detail=str(error),
+        ) from error
     except Exception as error:
         raise HTTPException(
             status_code=400,
