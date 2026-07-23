@@ -197,6 +197,7 @@ function App() {
 
       <main className="main-content">
         <AppErrorBoundary
+          key={activePage}
           onRecover={() =>
             changePage("dashboard")
           }
