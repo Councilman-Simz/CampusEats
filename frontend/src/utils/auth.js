@@ -17,3 +17,27 @@ export function getCurrentUserRole() {
 export function getToken() {
   return localStorage.getItem("token");
 }
+
+export function isStudent() {
+  return getCurrentUserRole() === "student";
+}
+
+export function isRestaurantOwner() {
+  return (
+    getCurrentUserRole() ===
+    "restaurant_owner"
+  );
+}
+
+export function isAdmin() {
+  return getCurrentUserRole() === "admin";
+}
+
+export function canAccessRole(...allowedRoles) {
+  const role = getCurrentUserRole();
+
+  return Boolean(
+    role && allowedRoles.includes(role)
+  );
+}
+

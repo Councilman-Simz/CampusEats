@@ -86,14 +86,14 @@ function Dashboard({ setActivePage, openRestaurant }) {
         ]);
 
         setRestaurants(
-          Array.isArray(restaurantsResponse?.data ?? [])
-            ? (restaurantsResponse?.data ?? [])
+          Array.isArray(restaurantsResponse.data)
+            ? restaurantsResponse.data
             : []
         );
 
         setDeals(
-          Array.isArray(dealsResponse?.data ?? [])
-            ? (dealsResponse?.data ?? [])
+          Array.isArray(dealsResponse.data)
+            ? dealsResponse.data
             : []
         );
       } catch (error) {

@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { getWebSocketBaseUrl } from "../utils/runtime";
 
 const WS_BASE_URL = import.meta.env.VITE_WS_URL;
 
@@ -118,7 +117,9 @@ function NotificationBell() {
         return;
       }
 
-      const socket = new WebSocket(`${getWebSocketBaseUrl()}/ws/notifications/${userId}`);
+      const socket = new WebSocket(
+        `${WS_BASE_URL}/ws/notifications/${userId}`
+      );
 
       socketRef.current = socket;
 
