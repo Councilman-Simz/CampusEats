@@ -16,7 +16,28 @@ import AdminDashboard from "./pages/AdminDashboard";
 import MyOrders from "./pages/MyOrders";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentCancel from "./pages/PaymentCancel";
+import AppErrorBoundary from "./components/AppErrorBoundary";
+import {
+  getCurrentUserRole,
+} from "./utils/auth";
+
 import "./App.css";
+
+function AccessDenied({ requiredRole }) {
+  return (
+    <section className="access-denied-page">
+      <div className="access-denied-card">
+        <span>🔒</span>
+        <h2>Access denied</h2>
+
+        <p>
+          This page is available only to{" "}
+          {requiredRole}.
+        </p>
+      </div>
+    </section>
+  );
+}
 
 function App() {
   const currentPath = window.location.pathname;
@@ -25,17 +46,24 @@ function App() {
     localStorage.getItem("token") || ""
   );
 
-  const [activePage, setActivePage] = useState("dashboard");
-  const [selectedRestaurant, setSelectedRestaurant] = useState(null);
+  const [activePage, setActivePage] =
+    useState("dashboard");
+
+  const [
+    selectedRestaurant,
+    setSelectedRestaurant,
+  ] = useState(null);
+
+  const role = getCurrentUserRole();
 
   function logout() {
-  localStorage.removeItem("token");
-  localStorage.removeItem("user");
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
 
-  setToken("");
-  setActivePage("dashboard");
-  setSelectedRestaurant(null);
-}
+    setToken("");
+    setActivePage("dashboard");
+    setSelectedRestaurant(null);
+  }
 
   function openRestaurant(restaurant) {
     setSelectedRestaurant(restaurant);
@@ -51,8 +79,12 @@ function App() {
     if (activePage === "restaurants") {
       return (
         <Restaurants
-          initialRestaurant={selectedRestaurant}
-          onRestaurantChange={setSelectedRestaurant}
+          initialRestaurant={
+            selectedRestaurant
+          }
+          onRestaurantChange={
+            setSelectedRestaurant
+          }
         />
       );
     }
@@ -66,41 +98,67 @@ function App() {
     }
 
     if (activePage === "search") {
-  return <Search onOpenRestaurant={openRestaurant} />;
-}
+      return (
+        <Search
+          onOpenRestaurant={openRestaurant}
+        />
+      );
+    }
 
-if (activePage === "image-search") {
-  return (
-    <ImageSearch
-      onOpenRestaurant={openRestaurant}
-    />
-  );
-}
+    if (activePage === "image-search") {
+      return (
+        <ImageSearch
+          onOpenRestaurant={openRestaurant}
+        />
+      );
+    }
 
-if (activePage === "chat") {
-  return (
-    <Chat
-      onOpenRestaurant={openRestaurant}
-    />
-  );
-}
+    if (activePage === "chat") {
+      return (
+        <Chat
+          onOpenRestaurant={openRestaurant}
+        />
+      );
+    }
 
-if (activePage === "favorites") {
-  return <Favorites />;
-}
+    if (activePage === "favorites") {
+      return <Favorites />;
+    }
 
-if (activePage === "analytics") {
-  return <Analytics />;
-}
-if (activePage === "owner") {
-  return <OwnerDashboard />;
-}
-if (activePage === "admin") {
-  return <AdminDashboard />;
-}
-if (activePage === "my-orders") {
-  return <MyOrders />;
-}
+    if (activePage === "analytics") {
+      return <Analytics />;
+    }
+
+    if (activePage === "owner") {
+      if (
+        role !== "restaurant_owner" &&
+        role !== "admin"
+      ) {
+        return (
+          <AccessDenied
+            requiredRole="restaurant owners"
+          />
+        );
+      }
+
+      return <OwnerDashboard />;
+    }
+
+    if (activePage === "admin") {
+      if (role !== "admin") {
+        return (
+          <AccessDenied
+            requiredRole="administrators"
+          />
+        );
+      }
+
+      return <AdminDashboard />;
+    }
+
+    if (activePage === "my-orders") {
+      return <MyOrders />;
+    }
 
     return (
       <Dashboard
@@ -110,11 +168,17 @@ if (activePage === "my-orders") {
     );
   }
 
-  if (currentPath === "/payment/success") {
+  if (
+    currentPath === "/payment/success" ||
+    currentPath === "/payment-success"
+  ) {
     return <PaymentSuccess />;
   }
 
-  if (currentPath === "/payment/cancel") {
+  if (
+    currentPath === "/payment/cancel" ||
+    currentPath === "/payment-cancel"
+  ) {
     return <PaymentCancel />;
   }
 
@@ -128,10 +192,17 @@ if (activePage === "my-orders") {
         activePage={activePage}
         setActivePage={changePage}
         onLogout={logout}
+        userRole={role}
       />
 
       <main className="main-content">
-        {renderPage()}
+        <AppErrorBoundary
+          onRecover={() =>
+            changePage("dashboard")
+          }
+        >
+          {renderPage()}
+        </AppErrorBoundary>
       </main>
     </div>
   );

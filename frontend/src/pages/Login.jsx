@@ -20,17 +20,29 @@ function Login({ onLogin }) {
       password,
     });
 
+    const accessToken =
+      response.data?.access_token;
+
+    const authenticatedUser =
+      response.data?.user;
+
+    if (!accessToken || !authenticatedUser) {
+      throw new Error(
+        "The server returned an incomplete login response."
+      );
+    }
+
     localStorage.setItem(
       "token",
-      response.data.access_token
+      accessToken
     );
 
     localStorage.setItem(
       "user",
-      JSON.stringify(response.data.user)
+      JSON.stringify(authenticatedUser)
     );
 
-    onLogin(response.data.access_token);
+    onLogin(accessToken);
   } catch (error) {
     console.error("Login failed:", error);
 
