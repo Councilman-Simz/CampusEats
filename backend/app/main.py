@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from app.api.orders import router as orders_router
+from app.api.payments import router as payments_router
 from app.api.owner import router as owner_router
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -26,7 +27,7 @@ from app.api.partner_restaurants import (
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
-    title="CampusEats API",
+    title="Savora API",
     version="1.0.0"
 )
 
@@ -60,6 +61,7 @@ app.include_router(analytics_router)
 app.include_router(partner_restaurants_router)
 app.include_router(owner_router)
 app.include_router(orders_router)
+app.include_router(payments_router)
 app.include_router(notification_router)
 app.include_router(owner_insights_router)
 app.include_router(admin_router)
@@ -67,4 +69,4 @@ app.include_router(admin_router)
 
 @app.get("/")
 def root():
-    return {"message": "Welcome to CampusEats!"}
+    return {"message": "Welcome to Savora!"}

@@ -483,7 +483,7 @@ function OwnerDeals({
 
                   <p>
                     {item.description ||
-                      "CampusEats flash deal"}
+                      "Savora flash deal"}
                   </p>
 
                   <small>

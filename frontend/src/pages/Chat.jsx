@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import api from "../services/api";
+import { getCurrentUserId } from "../utils/auth";
 
 import healthyBowl from "../assets/food/healthy-spinach-bowl.jpg";
 import bbqPlatter from "../assets/food/grilled-bbq-platter.jpg";
@@ -56,7 +57,7 @@ function Chat({ onOpenRestaurant }) {
       id: 1,
       role: "assistant",
       text:
-        "Hi! I’m the CampusEats AI assistant. Tell me what you’re craving, your budget, or any dietary preference.",
+        "Hi! I’m the Savora AI assistant. Tell me what you’re craving, your budget, or any dietary preference.",
       items: [],
     },
   ]);
@@ -99,7 +100,7 @@ function Chat({ onOpenRestaurant }) {
     try {
       const response = await api.post("/chat/", {
         message: cleanMessage,
-        user_id: 1,
+        user_id: getCurrentUserId(),
         limit: 5,
       });
 
@@ -170,7 +171,7 @@ function Chat({ onOpenRestaurant }) {
           Conversational food discovery
         </span>
 
-        <h1>CampusEats AI Assistant</h1>
+        <h1>Savora AI Assistant</h1>
 
         <p>
           Ask naturally about food, prices, dietary preferences,
@@ -218,7 +219,7 @@ function Chat({ onOpenRestaurant }) {
 
                           <p>
                             {item.description ||
-                              "CampusEats meal recommendation."}
+                              "Savora meal recommendation."}
                           </p>
 
                           <div className="chat-meal-footer">

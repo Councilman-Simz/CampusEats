@@ -35,7 +35,7 @@ function Analytics() {
         <div className="analytics-state">
           <div className="search-spinner" />
           <h2>Loading analytics</h2>
-          <p>Preparing CampusEats activity data...</p>
+          <p>Preparing Savora activity data...</p>
         </div>
       </main>
     );
@@ -72,7 +72,7 @@ function Analytics() {
           Platform insights
         </span>
 
-        <h1>CampusEats Analytics</h1>
+        <h1>Savora Analytics</h1>
 
         <p>
           Track search activity, menu engagement, and the meals

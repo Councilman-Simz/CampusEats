@@ -45,6 +45,29 @@ class Order(Base):
         default="pending",
     )
 
+    payment_status = Column(
+        String,
+        nullable=False,
+        default="unpaid",
+    )
+
+    payment_method = Column(
+        String,
+        nullable=True,
+    )
+
+    stripe_session_id = Column(
+        String,
+        nullable=True,
+        unique=True,
+    )
+
+    stripe_payment_intent_id = Column(
+        String,
+        nullable=True,
+        unique=True,
+    )
+
     created_at = Column(
         DateTime,
         default=datetime.utcnow,

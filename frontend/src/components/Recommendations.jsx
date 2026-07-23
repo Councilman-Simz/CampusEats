@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import api from "../services/api";
+import { getCurrentUserId } from "../utils/auth";
 
 function Recommendations() {
   const [items, setItems] = useState([]);
@@ -14,7 +15,7 @@ function Recommendations() {
 
         const response = await api.get("/recommendations/", {
           params: {
-          user_id: 1,
+          user_id: getCurrentUserId(),
           limit: 5,
        },
      });
@@ -50,7 +51,7 @@ function Recommendations() {
       <section className="recommendations-section">
         <div className="section-heading">
           <div>
-            <span className="page-eyebrow">CampusEats picks</span>
+            <span className="page-eyebrow">Savora picks</span>
             <h2>Recommended for You</h2>
           </div>
         </div>
@@ -67,7 +68,7 @@ function Recommendations() {
       <section className="recommendations-section">
         <div className="section-heading">
           <div>
-            <span className="page-eyebrow">CampusEats picks</span>
+            <span className="page-eyebrow">Savora picks</span>
             <h2>Recommended for You</h2>
           </div>
         </div>
@@ -82,7 +83,7 @@ function Recommendations() {
       <section className="recommendations-section">
         <div className="section-heading">
           <div>
-            <span className="page-eyebrow">CampusEats picks</span>
+            <span className="page-eyebrow">Savora picks</span>
             <h2>Recommended for You</h2>
           </div>
         </div>
@@ -98,11 +99,11 @@ function Recommendations() {
     <section className="recommendations-section">
       <div className="section-heading">
         <div>
-          <span className="page-eyebrow">CampusEats picks</span>
+          <span className="page-eyebrow">Savora picks</span>
           <h2>Recommended for You</h2>
         </div>
 
-        <p>Meals selected from the latest CampusEats menu.</p>
+        <p>Meals selected from the latest Savora menu.</p>
       </div>
 
       <div className="recommendations-grid">
@@ -122,7 +123,7 @@ function Recommendations() {
                 <strong>{formatPrice(item.price)}</strong>
               </div>
 
-              <p>{item.description || "A CampusEats menu recommendation."}</p>
+              <p>{item.description || "A Savora menu recommendation."}</p>
 
               {item.tags && (
                 <div className="recommendation-tags">

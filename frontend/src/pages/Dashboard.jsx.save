@@ -4,6 +4,7 @@ import Recommendations from "../components/Recommendations";
 import FeaturedRestaurantCard from "../components/FeaturedRestaurantCard";
 import FeaturedMealCard from "../components/FeaturedMealCard";
 import api from "../services/api";
+import useMenu from "../hooks/useMenu";
 
 import healthyBowl from "../assets/food/healthy-spinach-bowl.jpg";
 import bbqPlatter from "../assets/food/grilled-bbq-platter.jpg";
@@ -16,7 +17,6 @@ import restaurant1 from "../assets/restaurants/restaurant-1.jpg";
 import restaurant2 from "../assets/restaurants/restaurant-2.jpg";
 import restaurant3 from "../assets/restaurants/restaurant-3.jpg";
 import restaurant4 from "../assets/restaurants/restaurant-4.jpg";
-import useMenu from "../hooks/useMenu";
 
 const restaurantImages = [
   restaurant1,
@@ -64,8 +64,8 @@ function getFoodImage(name = "", tags = "") {
 }
 
 function Dashboard({ setActivePage, openRestaurant }) {
-  const [restaurants, setRestaurants] = useState([])
-  const { menuItems } = useMenu(); 
+  const [restaurants, setRestaurants] = useState([]);
+  const [menuItems, setMenuItems] = useState([]);
   const [deals, setDeals] = useState([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
@@ -82,12 +82,19 @@ function Dashboard({ setActivePage, openRestaurant }) {
           dealsResponse,
         ] = await Promise.all([
           api.get("/restaurants/"),
+          api.get("/menu/"),
           api.get("/deals/"),
         ]);
 
         setRestaurants(
           Array.isArray(restaurantsResponse.data)
             ? restaurantsResponse.data
+            : []
+        );
+
+        setMenuItems(
+          Array.isArray(menuResponse.data)
+            ? menuResponse.data
             : []
         );
 
@@ -200,7 +207,7 @@ function Dashboard({ setActivePage, openRestaurant }) {
         <div className="premium-hero-media">
           <img
             src={healthyBowl}
-            alt="Healthy meal available on Savora"
+            alt="Healthy meal available on CampusEats"
           />
 
           <div className="premium-media-overlay" />
@@ -284,7 +291,7 @@ function Dashboard({ setActivePage, openRestaurant }) {
             <span className="premium-quick-icon">✨</span>
 
             <div>
-              <h3>Ask Savora AI</h3>
+              <h3>Ask CampusEats AI</h3>
               <p>
                 Search naturally by food, budget, or preference.
               </p>
@@ -394,7 +401,7 @@ function Dashboard({ setActivePage, openRestaurant }) {
       <section className="premium-bottom-banner">
         <div>
           <span className="premium-eyebrow">
-            Savora AI
+            CampusEats AI
           </span>
 
           <h2>
@@ -419,3 +426,5 @@ function Dashboard({ setActivePage, openRestaurant }) {
 }
 
 export default Dashboard;
+
+

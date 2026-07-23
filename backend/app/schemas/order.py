@@ -28,6 +28,10 @@ class OrderResponse(BaseModel):
     restaurant_id: int
     total: float
     status: str
+    payment_status: str = "unpaid"
+    payment_method: str | None = None
+    stripe_session_id: str | None = None
+    stripe_payment_intent_id: str | None = None
     created_at: datetime | None = None
     items: list[OrderItemResponse] = []
 

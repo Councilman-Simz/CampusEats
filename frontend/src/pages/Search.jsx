@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import api from "../services/api";
+import { getCurrentUserId } from "../utils/auth";
 
 import healthyBowl from "../assets/food/healthy-spinach-bowl.jpg";
 import bbqPlatter from "../assets/food/grilled-bbq-platter.jpg";
@@ -94,7 +95,7 @@ function Search({ onOpenRestaurant }) {
       try {
         const response = await api.get("/favorites/", {
           params: {
-            user_id: 1,
+            user_id: getCurrentUserId(),
           },
         });
 
@@ -171,7 +172,7 @@ function Search({ onOpenRestaurant }) {
       setMessage(
         typeof detail === "string"
           ? detail
-          : "Unable to connect to CampusEats search."
+          : "Unable to connect to Savora search."
       );
 
       setResults([]);
@@ -218,7 +219,7 @@ function Search({ onOpenRestaurant }) {
           `/favorites/${itemId}`,
           {
             params: {
-              user_id: 1,
+              user_id: getCurrentUserId(),
             },
           }
         );
@@ -234,7 +235,7 @@ function Search({ onOpenRestaurant }) {
           null,
           {
             params: {
-              user_id: 1,
+              user_id: getCurrentUserId(),
             },
           }
         );
@@ -333,7 +334,7 @@ function Search({ onOpenRestaurant }) {
                 setQuery(event.target.value)
               }
               placeholder="Try: healthy food under $10"
-              aria-label="Search CampusEats"
+              aria-label="Search Savora"
             />
 
             {query && (
@@ -390,7 +391,7 @@ function Search({ onOpenRestaurant }) {
               </h2>
 
               <p>
-                CampusEats is searching the
+                Savora is searching the
                 available menu.
               </p>
             </div>
@@ -600,7 +601,7 @@ function Search({ onOpenRestaurant }) {
 
                           <p className="result-description">
                             {item.description ||
-                              "A fresh CampusEats meal available near campus."}
+                              "A fresh Savora meal available near campus."}
                           </p>
 
                           <div className="modern-result-tags">

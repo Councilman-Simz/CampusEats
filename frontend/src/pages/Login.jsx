@@ -53,7 +53,8 @@ function Login({ onLogin }) {
         password,
         dietary_preferences: "Vegetarian",
         campus: "Yeshiva University",
-      });
+        role,
+    });
 
       setMessage("Registration successful. Please log in.");
       setMode("login");
@@ -66,6 +67,8 @@ function Login({ onLogin }) {
       setLoading(false);
     }
   }
+
+  
 
   return (
     <main className="login-page">

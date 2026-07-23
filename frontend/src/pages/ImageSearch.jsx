@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import api from "../services/api";
+import { getCurrentUserId } from "../utils/auth";
 
 import healthyBowl from "../assets/food/healthy-spinach-bowl.jpg";
 import bbqPlatter from "../assets/food/grilled-bbq-platter.jpg";
@@ -70,7 +71,7 @@ function ImageSearch({ onOpenRestaurant }) {
       try {
         const response = await api.get("/favorites/", {
           params: {
-            user_id: 1,
+            user_id: getCurrentUserId(),
           },
         });
 
@@ -229,7 +230,7 @@ function ImageSearch({ onOpenRestaurant }) {
           `/favorites/${itemId}`,
           {
             params: {
-              user_id: 1,
+              user_id: getCurrentUserId(),
             },
           }
         );
@@ -245,7 +246,7 @@ function ImageSearch({ onOpenRestaurant }) {
           null,
           {
             params: {
-              user_id: 1,
+              user_id: getCurrentUserId(),
             },
           }
         );
@@ -325,7 +326,7 @@ function ImageSearch({ onOpenRestaurant }) {
         <h1>Find meals using a photo</h1>
 
         <p>
-          Upload a food picture and CampusEats will use
+          Upload a food picture and Savora will use
           CLIP to identify visually similar menu items.
         </p>
       </section>
@@ -470,7 +471,7 @@ function ImageSearch({ onOpenRestaurant }) {
               <strong>2</strong>
 
               <span>
-                CampusEats analyzes the image
+                Savora analyzes the image
               </span>
             </div>
 
@@ -502,7 +503,7 @@ function ImageSearch({ onOpenRestaurant }) {
             <h2>Analyzing your photo</h2>
 
             <p>
-              CampusEats is comparing it with menu
+              Savora is comparing it with menu
               embeddings.
             </p>
           </div>
@@ -589,7 +590,7 @@ function ImageSearch({ onOpenRestaurant }) {
 
                     <p>
                       {item.description ||
-                        "A visually similar CampusEats meal."}
+                        "A visually similar Savora meal."}
                     </p>
 
                     <div className="image-result-tags">

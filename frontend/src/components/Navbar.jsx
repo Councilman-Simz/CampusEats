@@ -69,7 +69,7 @@ function Navbar({
         <div className="brand-logo">C</div>
 
         <div>
-          <h2>CampusEats</h2>
+          <h2>Savora</h2>
           <span>Student food finder</span>
         </div>
       </div>
@@ -156,7 +156,7 @@ function Navbar({
 
             <span>
               {storedUser?.email ||
-                "CampusEats user"}
+                "Savora user"}
             </span>
           </div>
         </div>

@@ -42,7 +42,7 @@ function AdminStats({ data, onRefresh }) {
             Platform administration
           </span>
 
-          <h1>CampusEats Admin</h1>
+          <h1>Savora Admin</h1>
 
           <p>
             Monitor users, restaurants, orders,

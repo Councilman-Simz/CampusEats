@@ -14,9 +14,13 @@ import Analytics from "./pages/Analytics";
 import OwnerDashboard from "./pages/OwnerDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import MyOrders from "./pages/MyOrders";
+import PaymentSuccess from "./pages/PaymentSuccess";
+import PaymentCancel from "./pages/PaymentCancel";
 import "./App.css";
 
 function App() {
+  const currentPath = window.location.pathname;
+
   const [token, setToken] = useState(
     localStorage.getItem("token") || ""
   );
@@ -104,6 +108,14 @@ if (activePage === "my-orders") {
         openRestaurant={openRestaurant}
       />
     );
+  }
+
+  if (currentPath === "/payment/success") {
+    return <PaymentSuccess />;
+  }
+
+  if (currentPath === "/payment/cancel") {
+    return <PaymentCancel />;
   }
 
   if (!token) {
