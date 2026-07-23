@@ -37,3 +37,9 @@ frontend/dist/
 backend/.env
 .DS_Store
 \n*.local-backup\n*.before-savora-fix\n*.backup-before-major-fix\n*.pre-build-fix\n*.save\n
+# Local repair backups
+*.before-savora-fix
+*.local-backup
+*.backup-before-major-fix
+*.pre-build-fix
+*.save
