@@ -55,10 +55,25 @@ def recommend_menu_items(
         )
 
     if clean_preference:
-        results = semantic_search(
+       try:
+           results = semantic_search(
             db=db,
             query=clean_preference,
             limit=limit + 5,
+         )
+      except Exception as exc:
+          print(
+            "Semantic recommendation search failed; "
+            f"using newest available items instead: {exc}"
+          )
+
+        return (
+            db.query(MenuItem)
+            .filter(MenuItem.is_available.is_(True))
+            .filter(MenuItem.stock_quantity > 0)
+            .order_by(MenuItem.id.desc())
+            .limit(limit)
+            .all()
         )
 
         favorite_item_ids = {
@@ -80,7 +95,8 @@ def recommend_menu_items(
 
     return (
         db.query(MenuItem)
-        .filter(MenuItem.embedding.is_not(None))
+        .filter(MenuItem.is_available.is_(True))
+        .filter(MenuItem.stock_quantity > 0)
         .order_by(MenuItem.id.desc())
         .limit(limit)
         .all()
