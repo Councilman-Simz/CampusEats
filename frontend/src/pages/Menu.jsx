@@ -378,19 +378,31 @@ function Menu() {
       setMessage("");
       setSuccessMessage("");
 
-      const response = await api.post(
+      const orderResponse = await api.post(
         "/orders/",
         payload
       );
 
-      setCart([]);
-      setCartOpen(false);
-
-      setSuccessMessage(
-        `Order #${response.data.id} placed successfully. Total: $${Number(
-          response.data.total
-        ).toFixed(2)}`
+      const paymentResponse = await api.post(
+        "/payments/checkout-session",
+        {
+          order_id: orderResponse.data.id,
+        }
       );
+
+      const checkoutUrl =
+        paymentResponse.data.checkout_url;
+
+      if (!checkoutUrl) {
+        throw new Error(
+          "Stripe checkout URL was not returned."
+        );
+      }
+
+      setCart([]);
+      localStorage.removeItem("campusEatsCart");
+
+      window.location.assign(checkoutUrl);
     } catch (error) {
       console.error(
         "Checkout failed:",
