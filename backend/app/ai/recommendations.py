@@ -1,6 +1,5 @@
 from sqlalchemy.orm import Session
 
-from app.ai.semantic_search import semantic_search
 from app.models.favorite import Favorite
 from app.models.menu_item import MenuItem
 
@@ -55,26 +54,28 @@ def recommend_menu_items(
         )
 
     if clean_preference:
-       try:
-           results = semantic_search(
-            db=db,
-            query=clean_preference,
-            limit=limit + 5,
-         )
-      except Exception as exc:
-          print(
-            "Semantic recommendation search failed; "
-            f"using newest available items instead: {exc}"
-          )
+        try:
+            from app.ai.semantic_search import semantic_search
 
-        return (
-            db.query(MenuItem)
-            .filter(MenuItem.is_available.is_(True))
-            .filter(MenuItem.stock_quantity > 0)
-            .order_by(MenuItem.id.desc())
-            .limit(limit)
-            .all()
-        )
+            results = semantic_search(
+                db=db,
+                query=clean_preference,
+                limit=limit + 5,
+            )
+        except Exception as exc:
+            print(
+                "Semantic recommendation search failed; "
+                f"using available items instead: {exc}"
+            )
+
+            return (
+                db.query(MenuItem)
+                .filter(MenuItem.is_available.is_(True))
+                .filter(MenuItem.stock_quantity > 0)
+                .order_by(MenuItem.id.desc())
+                .limit(limit)
+                .all()
+            )
 
         favorite_item_ids = {
             favorite.item_id
@@ -85,13 +86,11 @@ def recommend_menu_items(
             )
         }
 
-        filtered_results = [
+        return [
             item
             for item in results
             if item.id not in favorite_item_ids
-        ]
-
-        return filtered_results[:limit]
+        ][:limit]
 
     return (
         db.query(MenuItem)
