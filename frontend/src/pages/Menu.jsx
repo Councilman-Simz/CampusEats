@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import FoodCard from "../components/FoodCard";
 import MealDetailsModal from "../components/MealDetailsModal";
+import api from "../services/api";
 
 import healthyBowl from "../assets/food/healthy-spinach-bowl.jpg";
 import bbqPlatter from "../assets/food/grilled-bbq-platter.jpg";
