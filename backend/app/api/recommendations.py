@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
-from app.ai.recommendations import recommend_menu_items
 from app.core.database import get_db
+from app.models.menu_item import MenuItem
 
 router = APIRouter(
     prefix="/recommendations",
@@ -17,11 +17,13 @@ def get_recommendations(
     limit: int = Query(default=5, ge=1, le=25),
     db: Session = Depends(get_db),
 ):
-    results = recommend_menu_items(
-        db=db,
-        user_id=user_id,
-        preference=preference,
-        limit=limit,
+    items = (
+        db.query(MenuItem)
+        .filter(MenuItem.is_available.is_(True))
+        .filter(MenuItem.stock_quantity > 0)
+        .order_by(MenuItem.id.desc())
+        .limit(limit)
+        .all()
     )
 
     return [
@@ -38,5 +40,5 @@ def get_recommendations(
             "tags": item.tags,
             "ingredients": item.ingredients,
         }
-        for item in results
+        for item in items
     ]
