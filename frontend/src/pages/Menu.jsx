@@ -73,6 +73,7 @@ function FoodImage({ item }) {
 function Menu() {
   const [items, setItems] = useState([]);
   const [message, setMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
   const [loading, setLoading] = useState(true);
   const [checkingOut, setCheckingOut] =
