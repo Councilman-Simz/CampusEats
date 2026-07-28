@@ -71,13 +71,14 @@ def create_checkout_session(
                 }
             ],
             success_url=(
-                f"{settings.STRIPE_SUCCESS_URL}"
-                f"?session_id={{CHECKOUT_SESSION_ID}}"
+                 f"{settings.FRONTEND_URL.rstrip('/')}"
+                 "/payment/success"
+                 "?session_id={CHECKOUT_SESSION_ID}"
             ),
             cancel_url=(
-                f"{settings.STRIPE_CANCEL_URL}"
-                f"?order_id={order.id}"
-            ),
+              f"{settings.FRONTEND_URL.rstrip('/')}"
+               "/payment/cancel"
+           ),
             metadata={
                 "order_id": str(order.id),
                 "user_id": str(current_user.id),

@@ -120,6 +120,52 @@ function Menu() {
     );
   }, [cart]);
 
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadMenu() {
+      try {
+        setLoading(true);
+        setMessage("");
+
+        const response = await api.get("/menu/");
+
+        if (!isMounted) {
+          return;
+        }
+
+        setItems(
+          Array.isArray(response.data)
+            ? response.data
+            : []
+        );
+      } catch (error) {
+        console.error(
+          "Menu loading failed:",
+          error
+        );
+
+        if (isMounted) {
+          setItems([]);
+          setMessage(
+            error.response?.data?.detail ||
+              "Unable to load the menu."
+          );
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    }
+
+    loadMenu();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   const availableTags = useMemo(() => {
     const tags = new Set();
 

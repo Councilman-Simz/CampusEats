@@ -4,15 +4,15 @@ const PRODUCTION_API_URL =
   "https://campuseats-1.onrender.com";
 
 function getApiUrl() {
-  const configured =
+  const configuredUrl =
     import.meta.env.VITE_API_URL?.trim();
 
   if (
-    configured &&
-    !configured.includes("your-backend-url") &&
-    configured !== "undefined"
+    configuredUrl &&
+    configuredUrl !== "undefined" &&
+    !configuredUrl.includes("your-backend-url")
   ) {
-    return configured.replace(/\/$/, "");
+    return configuredUrl.replace(/\/$/, "");
   }
 
   if (import.meta.env.PROD) {
@@ -32,7 +32,9 @@ api.interceptors.request.use(
     const token = localStorage.getItem("token");
 
     if (token) {
-      config.headers = config.headers || {};
+      config.headers =
+        config.headers || {};
+
       config.headers.Authorization =
         `Bearer ${token}`;
     }
@@ -45,22 +47,29 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    /*
-     * A protected page must not erase the entire
-     * session merely because one request returned
-     * 401 or 403.
-     */
-    if (error.response?.status === 401) {
+    const status = error.response?.status;
+    const requestUrl =
+      error.config?.url || "";
+
+    if (status === 401) {
       console.warn(
         "Unauthorized request:",
-        error.config?.url
+        requestUrl
       );
+
+      const isProtectedOwnerRequest =
+        requestUrl.startsWith("/owner/");
+
+      if (isProtectedOwnerRequest) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+      }
     }
 
-    if (error.response?.status === 403) {
+    if (status === 403) {
       console.warn(
         "Forbidden request:",
-        error.config?.url
+        requestUrl
       );
     }
 
