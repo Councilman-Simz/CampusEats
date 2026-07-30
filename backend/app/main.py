@@ -1,37 +1,45 @@
 from fastapi import FastAPI
-from app.api.orders import router as orders_router
-from app.api.payments import router as payments_router
-from app.api.owner import router as owner_router
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.health import router as health_router
-from app.api.auth import router as auth_router
-from app.api.restaurants import router as restaurants_router
-from app.api.menu import router as menu_router
-from app.api.deals import router as deals_router
-from app.api.search import router as search_router
-from app.core.database import Base, engine
-from app.api.recommendations import router as recommendations_router
-import app.models
-from app.api.favorites import router as favorites_router
-from app.api.uploads import router as uploads_router
-from app.api.chat import router as chat_router
-from app.api.analytics import router as analytics_router
-from app.api.notifications import router as notification_router
-from app.api.owner_insights import router as owner_insights_router
 from app.api.admin import router as admin_router
+from app.api.analytics import router as analytics_router
+from app.api.auth import router as auth_router
+from app.api.chat import router as chat_router
+from app.api.deals import router as deals_router
+from app.api.favorites import router as favorites_router
+from app.api.health import router as health_router
+from app.api.menu import router as menu_router
+from app.api.notifications import router as notification_router
+from app.api.orders import router as orders_router
+from app.api.owner import router as owner_router
+from app.api.owner_insights import router as owner_insights_router
 from app.api.partner_restaurants import (
     router as partner_restaurants_router,
 )
+from app.api.payments import router as payments_router
+from app.api.recommendations import (
+    router as recommendations_router,
+)
+from app.api.restaurants import router as restaurants_router
+from app.api.search import router as search_router
+from app.api.uploads import router as uploads_router
+from app.core.config import settings
+from app.core.database import Base, engine
+
+import app.models
 
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="Savora API",
-    version="1.0.0"
+    version="1.0.0",
 )
 
-from app.core.config import settings
+configured_frontend_url = (
+    settings.FRONTEND_URL.strip().rstrip("/")
+    if settings.FRONTEND_URL
+    else ""
+)
 
 allowed_origins = [
     "http://localhost:5173",
@@ -41,8 +49,14 @@ allowed_origins = [
     "http://127.0.0.1:5174",
     "http://127.0.0.1:5175",
     "https://campus-eats-sable.vercel.app",
-    settings.FRONTEND_URL.rstrip("/"),
+    "https://savora-cvdq.onrender.com",
 ]
+
+if (
+    configured_frontend_url
+    and configured_frontend_url not in allowed_origins
+):
+    allowed_origins.append(configured_frontend_url)
 
 app.add_middleware(
     CORSMiddleware,
