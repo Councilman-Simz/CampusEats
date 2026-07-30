@@ -1,55 +1,42 @@
 from fastapi import APIRouter, Depends, Query
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
-from app.models.search_log import SearchLog
-from app.services.search_service import search_menu_items
+from app.models.menu_item import MenuItem
+from app.schemas.menu_item import MenuItemResponse
 
 router = APIRouter(
     prefix="/search",
-    tags=["search"],
+    tags=["Search"],
 )
 
 
-@router.get("/")
-def search(
+@router.get(
+    "/",
+    response_model=list[MenuItemResponse],
+)
+def search_menu_items(
     query: str = Query(..., min_length=1),
-    limit: int = Query(default=5, ge=1, le=25),
+    limit: int = Query(10, ge=1, le=25),
     db: Session = Depends(get_db),
 ):
-    results = search_menu_items(
-        db=db,
-        query=query,
-        limit=limit,
+    search_term = f"%{query.strip()}%"
+
+    results = (
+        db.query(MenuItem)
+        .filter(
+            MenuItem.is_available.is_(True),
+            or_(
+                MenuItem.name.ilike(search_term),
+                MenuItem.description.ilike(search_term),
+                MenuItem.tags.ilike(search_term),
+                MenuItem.ingredients.ilike(search_term),
+            ),
+        )
+        .order_by(MenuItem.name.asc())
+        .limit(limit)
+        .all()
     )
 
-    search_log = SearchLog(
-        query=query.strip(),
-        result_count=len(results),
-        search_type="text",
-    )
-
-    db.add(search_log)
-    db.commit()
-
-    return [
-        {
-            "id": item.id,
-            "restaurant_id": item.restaurant_id,
-            "name": item.name,
-            "description": item.description,
-            "price": (
-                float(item.price)
-                if item.price is not None
-                else None
-            ),
-            "tags": item.tags,
-            "ingredients": item.ingredients,
-            "expires_at": (
-                item.expires_at.isoformat()
-                if hasattr(item.expires_at, "isoformat")
-                else item.expires_at
-            ),
-        }
-        for item in results
-    ]
+    return results
