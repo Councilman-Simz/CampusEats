@@ -22,6 +22,17 @@ router = APIRouter(
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
 
+def get_frontend_url() -> str:
+    frontend_url = settings.FRONTEND_URL.strip().rstrip("/")
+
+    if not frontend_url:
+        raise RuntimeError(
+            "FRONTEND_URL is not configured."
+        )
+
+    return frontend_url
+
+
 @router.post(
     "/checkout-session",
     response_model=CheckoutSessionResponse,
@@ -52,8 +63,10 @@ def create_checkout_session(
             detail="This order has already been paid.",
         )
 
+    frontend_url = get_frontend_url()
+
     try:
-        session = stripe.checkout.Session.create(
+        checkout_session = stripe.checkout.Session.create(
             mode="payment",
             payment_method_types=["card"],
             line_items=[
@@ -61,24 +74,26 @@ def create_checkout_session(
                     "price_data": {
                         "currency": "usd",
                         "product_data": {
-                            "name": f"Savora Order #{order.id}",
+                            "name": (
+                                f"Savora Order #{order.id}"
+                            ),
                         },
                         "unit_amount": int(
-                            round(float(order.total) * 100)
+                            round(
+                                float(order.total) * 100
+                            )
                         ),
                     },
                     "quantity": 1,
                 }
             ],
             success_url=(
-                 f"{settings.FRONTEND_URL.rstrip('/')}"
-                 "/payment/success"
-                 "?session_id={CHECKOUT_SESSION_ID}"
+                f"{frontend_url}/payment/success"
+                "?session_id={CHECKOUT_SESSION_ID}"
             ),
             cancel_url=(
-              f"{settings.FRONTEND_URL.rstrip('/')}"
-               "/payment/cancel"
-           ),
+                f"{frontend_url}/payment/cancel"
+            ),
             metadata={
                 "order_id": str(order.id),
                 "user_id": str(current_user.id),
@@ -90,16 +105,18 @@ def create_checkout_session(
             detail=str(error),
         ) from error
 
-    order.stripe_session_id = session.id
+    order.stripe_session_id = checkout_session.id
     order.payment_method = "stripe"
     order.payment_status = "pending"
 
     db.commit()
+    db.refresh(order)
 
     return CheckoutSessionResponse(
-        checkout_url=session.url,
-        session_id=session.id,
+        checkout_url=checkout_session.url,
+        session_id=checkout_session.id,
     )
+
 
 @router.post("/webhook")
 async def stripe_webhook(
@@ -107,7 +124,9 @@ async def stripe_webhook(
     db: Session = Depends(get_db),
 ):
     payload = await request.body()
-    signature = request.headers.get("stripe-signature")
+    signature = request.headers.get(
+        "stripe-signature"
+    )
 
     if not signature:
         raise HTTPException(
@@ -133,17 +152,12 @@ async def stripe_webhook(
         ) from error
 
     if event["type"] == "checkout.session.completed":
-        session = event["data"]["object"]
-
-        metadata = session["metadata"] if "metadata" in session else None
-
-        if metadata is not None:
-            try:
-                order_id = metadata["order_id"]
-            except KeyError:
-                order_id = None
-        else:
-            order_id = None
+        checkout_session = event["data"]["object"]
+        metadata = checkout_session.get(
+            "metadata",
+            {},
+        )
+        order_id = metadata.get("order_id")
 
         if order_id:
             order = (
@@ -155,7 +169,9 @@ async def stripe_webhook(
             if order and order.payment_status != "paid":
                 order_items = (
                     db.query(OrderItem)
-                    .filter(OrderItem.order_id == order.id)
+                    .filter(
+                        OrderItem.order_id == order.id
+                    )
                     .all()
                 )
 
@@ -173,19 +189,21 @@ async def stripe_webhook(
 
                         if menu_item is None:
                             raise RuntimeError(
-                                f"Menu item "
+                                "Menu item "
                                 f"{order_item.menu_item_id} "
                                 "was not found."
                             )
 
-                        quantity = order_item.quantity or 0
+                        quantity = (
+                            order_item.quantity or 0
+                        )
                         current_stock = (
                             menu_item.stock_quantity or 0
                         )
 
                         if current_stock < quantity:
                             raise RuntimeError(
-                                f"Insufficient stock for "
+                                "Insufficient stock for "
                                 f"{menu_item.name}."
                             )
 
@@ -197,15 +215,17 @@ async def stripe_webhook(
                         )
 
                     payment_intent = (
-                        session["payment_intent"]
-                        if "payment_intent" in session
-                        else None
+                        checkout_session.get(
+                            "payment_intent"
+                        )
                     )
 
                     order.payment_status = "paid"
                     order.payment_method = "stripe"
                     order.status = "confirmed"
-                    order.stripe_session_id = session["id"]
+                    order.stripe_session_id = (
+                        checkout_session["id"]
+                    )
                     order.stripe_payment_intent_id = (
                         str(payment_intent)
                         if payment_intent
